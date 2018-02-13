@@ -65,7 +65,7 @@ termianl String TABLA,FINTABLA,FILT,FINFILT,CB,FINCB,CT,FINCT;
 terminal String CAJA,FINCAJA,OPCION,FINOPCION,VALOR,SPINNER, 
 FINSPINER,SALTOFIN,CLICK,RUTA;
 
-terminal String ID,GRUPO,ALTO,ANCHO,ALINEADO,ABRIR,CERAR           
+terminal String ID,GRUPO,ALTO,ANCHO,ALINEADO,ABRIR,CERRAR           
 PUNTOCOMA,IGUAL,PARIZQ,PARDER,ECADENA,ETEXTO;
 
 nonterminal String inicio;
@@ -79,7 +79,8 @@ nonterminal String  lopciones , opciones, id, grupo, ancho , alto ,alineado;
 
 nonterminal String panel,texto,imagen,boton,enlace;
 
-nonterminal String tabla,lencabezado,celda;
+nonterminal String tabla,componentestabla,encabezado,
+cb,lcb,celdas,celda,lct,ct;
 
 nonterminal String textoa,cajatexto;
 
@@ -89,7 +90,7 @@ nontermial  String spinner,saltofin;
 
 start with inicio;
 
-inicio  ::= ABRIR CHTML CERRAR encabezado cuerpo ABRIT FINCHTML CERRAR;
+inicio  ::= ABRIR CHTML CERRAR encabezado cuerpo ABRIR FINCHTML CERRAR;
 
 encabezado ::= ABRIR ENCABEZADO CERRAR lcompencabezado ABRIR FINENCABEZADO CERRAR;
 
@@ -148,9 +149,65 @@ imagen      ::= ABRIR IMAGEN CERRAR ECADENA ABRIR FINIMAGEN CERRAR
 boton       ::= ABRIR BOTON lopciones evento CERRAR ETEXTO ABRIR FINBOTON CERRAR
             | ABRIR BOTON evento lopciones  CERRAR ETEXTO ABRIR FINBOTON CERRAR
             | ABRIR BOTON evento CERRAR ETEXTO ABRIR FINBOTON CERRAR
-            | ABRIR BOTON CERRAR ETEXTO ABRIR FINBOTON CERRAR;
+            | ABRIR BOTON CERRAR ETEXTO ABRIR FINBOTON CERRAR
+            | ABRIR BOTON CERRAR ABRIR FINBOTON CERRAR;
 
-            
+enlace      ::= ABRIR ENLACE ruta lopciones CERRAR ETEXTO ABRIR FINENLACE CERRAR
+            |ABRIR ENLACE ruta CERRAR ETEXTO ABRIR FINENLACE CERRAR;
+
+tabla       ::= ABRIR TABLA lopciones CERRAR componentestabla ABRIR FINTABLA CERRAR
+            |ABRIR TABLA CERRAR componentestabla ABRIR FINTABLA CERRAR;
+
+componentestabla ::= encabezado celdas
+                 |encabezado
+                 |celdas;
+
+encabezado  ::= ABRIR FILT CERRAR lcb ABRIR FINFILT CERRAR;
+                
+lcb       ::= lcb cb
+          |cb;
+
+cb      ::= ABRIR CB CERRAR lcompcuerpo ABRIR FINCB CERRAR;
+
+celdas  ::= celdas celda
+        | celda;   
+
+celda ::= ABRIR FILT CERRAR lct ABRIR FINFILT CERRAR;
+
+lct ::= lct ct
+    |ct;
+
+ct ::= ABRIR CT CERRAR lcompcuerpo ABRIR FINCT CERRAR;
+
+textoa ::= ABRIR TEXTOA lopciones CERRAR ETEXTO ABRIR FINTEXTOA CERRAR
+       |ABRIR TEXTOA CERRAR ETEXTO ABRIR FINTEXTOA CERRAR
+       |ABRIR TEXTOA lopciones CERRAR  ABRIR FINTEXTOA CERRAR
+       |ABRIR TEXTOA CERRAR  ABRIR FINTEXTOA CERRAR;
+
+cajatexto ::= ABRIR CAJATEXTO lopciones CERRAR ETEXTO ABRIR FINCAJATEXTO CERRAR
+       |ABRIR CAJATEXTO CERRAR ETEXTO ABRIR FINCAJATEXTO CERRAR
+       |ABRIR CAJATEXTO lopciones CERRAR  ABRIR FINCAJATEXTO CERRAR
+       |ABRIR CAJATEXTO CERRAR  ABRIR FINCAJATEXTO CERRAR;
+
+caja ::= ABRIR CAJA click lopciones CERRAR lopcion ABRIR FINCAJA CERRAR
+     | ABRIR CAJA lopciones click  CERRAR lopcion ABRIR FINCAJA CERRAR
+     | ABRIR CAJA click  CERRAR lopcion ABRIR FINCAJA CERRAR
+     | ABRIR CAJA lopciones  CERRAR lopcion ABRIR FINCAJA CERRAR
+     | ABRIR CAJA  CERRAR lopcion ABRIR FINCAJA CERRAR;
+
+lopcion ::= lopcion opcion
+        |opcion;
+
+opcion  ::= ABRIR OPCION valor CERRAR ETEXTO ABRIR FINOPCION CERRAR;
+
+spinner ::= ABRIR SPINNER CERRAR ETEXTO ABRIR FINSPINER CERRAR
+        | ABRIR SPINNER CERRAR  ABRIR FINSPINER CERRAR;
+
+saltofin ::= ABRIR SALTOFIN CERRAR ;
+
+
+ 
+valor  ::= VALOR IGUAL ECADENA;
 
 evento      ::= ruta click
             | click ruta
