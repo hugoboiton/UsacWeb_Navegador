@@ -16,7 +16,7 @@ public class GenerarAnalizadorCHTML {
      private static void generarAnalizador()
     {
         try {
-            String ruta ="src/Analizador/CHTML";
+            String ruta ="src/Analizador/CHTML/";
             String opcFlex[]={ruta + "lexicoCHTML.flex", "-d", ruta};
             jflex.Main.generate(opcFlex);
             String opcCUP[]={"-destdir" , ruta , "-parser" , "parserCHTML" , ruta+"sintacticoCHTML.cup" };

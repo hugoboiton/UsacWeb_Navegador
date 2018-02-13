@@ -16,7 +16,7 @@ public class GenerarAnalizadorCJS {
      private static void generarAnalizador()
     {
         try {
-            String ruta ="src/Analizador/CJS";
+            String ruta ="src/Analizador/CJS/";
             String opcFlex[]={ruta + "lexicoCJS.flex", "-d", ruta};
             jflex.Main.generate(opcFlex);
             String opcCUP[]={"-destdir" , ruta , "-parser" , "parserCJS" , ruta+"sintacticoCJS.cup" };

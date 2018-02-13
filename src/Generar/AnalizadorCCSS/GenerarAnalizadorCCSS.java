@@ -16,8 +16,8 @@ public class GenerarAnalizadorCCSS {
     private static void generarAnalizador()
     {
         try {
-            String ruta ="src/Analizador/CCSS";
-            String opcFlex[]={ruta + "lexicoCCSS.flex", "-d", ruta};
+            String ruta ="src/Analizador/CCSS/";
+            String opcFlex[]={ruta + "/lexicoCCSS.flex", "-d", ruta};
             jflex.Main.generate(opcFlex);
             String opcCUP[]={"-destdir" , ruta , "-parser" , "parserCCSS" , ruta+"sintacticoCCSS.cup" };
             java_cup.Main.main(opcCUP);

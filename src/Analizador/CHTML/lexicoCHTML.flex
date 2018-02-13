@@ -2,19 +2,19 @@ package Analizador.CHTML;
 
 import java_cup.runtime.Symbol;
 import java.util.ArrayList;
-import EstucturasDatos.nodoerror;
+import EstructurasDatos.NodoError;
 //Scanner para CHTML
 %%
 %{
     //Código de usuario
     public String archivo="null";
-    public  ArrayList<nodoerror> lexico= new ArrayList<nodoerror>();
+    public  ArrayList<NodoError> lexico= new ArrayList<NodoError>();
     public void agregarerror(int linea,int columna,String tipo,String men)
     {
-       nodoerror er= new nodoerror(linea, columna, tipo, men,archivo);
+       NodoError er= new NodoError(linea, columna, tipo, men,archivo);
        lexico.add(er);
     }
-     public  ArrayList<nodoerror> lex()
+     public  ArrayList<NodoError> lex()
     {
         return lexico;
     }
@@ -74,7 +74,7 @@ FINOPCION       = fin-opcion
 VALOR           = valor
 
 SPINNER         = spinner
-FINSPINER       = fin-spinner
+FINSPINNER      = fin-spinner
 
 SALTOFIN        = salto-fin
 
@@ -91,8 +91,8 @@ ABRIR           = "<"
 CERRAR          = ">"
 PUNTOCOMA       = ";"
 IGUAL           = "="
-PARIZQ          = "("
-PARDER          = ")"
+/*PARIZQ          = "("
+PARDER          = ")"*/
 
 //ENUMERO        = [0-9]+("."[0-9]+)?
 ECADENA        = [\"][^\"]+[\"]
@@ -149,7 +149,7 @@ ENTER   = [\ \n]
 {VALOR}             { return new Symbol(sym.VALOR, yyline, yycolumn, yytext()); }
 
 {SPINNER}           { return new Symbol(sym.SPINNER, yyline, yycolumn, yytext()); }
-{FINSPINER}         { return new Symbol(sym.FINSPINNER, yyline, yycolumn, yytext()); }
+{FINSPINNER}         { return new Symbol(sym.FINSPINNER, yyline, yycolumn, yytext()); }
 
 {SALTOFIN}          { return new Symbol(sym.SALTOFIN, yyline, yycolumn, yytext()); }
 
@@ -166,8 +166,8 @@ ENTER   = [\ \n]
 {CERRAR}            { return new Symbol(sym.CERRAR, yyline, yycolumn, yytext()); }
 {PUNTOCOMA}         { return new Symbol(sym.PUNTOCOMA, yyline, yycolumn, yytext()); }
 {IGUAL}             { return new Symbol(sym.IGUAL, yyline, yycolumn, yytext()); }
-{PARIZQ}            { return new Symbol(sym.PARIZQ, yyline, yycolumn, yytext()); }
-{PARDER}            { return new Symbol(sym.PARDER, yyline, yycolumn, yytext()); }
+/*{PARIZQ}            { return new Symbol(sym.PARIZQ, yyline, yycolumn, yytext()); }
+{PARDER}            { return new Symbol(sym.PARDER, yyline, yycolumn, yytext()); }*/
 
 //{ENUMERO}           { return new Symbol(sym.ENUMERO, yyline, yycolumn, yytext()); }
 {ECADENA}           { return new Symbol(sym.ECADENA, yyline, yycolumn, yytext()); }
