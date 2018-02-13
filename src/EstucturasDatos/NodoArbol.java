@@ -15,13 +15,16 @@ import java.util.ArrayList;
 public class NodoArbol {
     private String Produccion;
     private String valor;
+    private String linea;
+    private String columna;
     public ArrayList<NodoArbol> hijos;
     
-    public NodoArbol(String produccion , String valor) {
+    public NodoArbol(String produccion , String valor,int linea , int columna) {
         this.setProduccion(produccion);
         this.setValor(valor);
         hijos = new ArrayList<NodoArbol>();
-    
+        this.setLinea(String.valueOf(linea));
+        this.setColumna(String.valueOf(columna));
     }
     public void add( NodoArbol hijo){
         hijos.add(hijo);
@@ -53,6 +56,34 @@ public class NodoArbol {
      */
     public void setValor(String valor) {
         this.valor = valor;
+    }
+
+    /**
+     * @return the linea
+     */
+    public String getLinea() {
+        return linea;
+    }
+
+    /**
+     * @param linea the linea to set
+     */
+    public void setLinea(String linea) {
+        this.linea = linea;
+    }
+
+    /**
+     * @return the columna
+     */
+    public String getColumna() {
+        return columna;
+    }
+
+    /**
+     * @param columna the columna to set
+     */
+    public void setColumna(String columna) {
+        this.columna = columna;
     }
     
     

@@ -1,1 +1,182 @@
+package Analizador.CHTML;
+
+import java_cup.runtime.Symbol;
+import EstructurasDatos.NodoArbol;
+import EstructurasDatos.nodoerror;
+import java.util.ArrayList;
+//parser chtml
+
+parser code
+{:
+    public String archivo="null";
+    public static ArrayList<nodoerror> sitactico= new ArrayList<nodoerror>();
+    public static void agregarerror(int linea,int columna,String tipo,String men)
+    {
+       nodoerror er= new nodoerror(linea, columna, tipo, men,archivo);
+       sitactico.add(er);
+    }
+    public static String errorSin="";
+    public void syntax_error(Symbol s){
+         agregarerror(s.left,s.right,"sintacitico",s.value.toString());
+         errorSin=errorSin+"Error en la Línea " + (s.right+1) +" Columna "+s.left+ ". Identificador "+s.value + " no reconocido."+"\n";
+         System.err.println("Error de Sintaxis---a");
+         System.err.println(s.value.toString());
+         System.err.println( "Linea " + s.left );
+         System.err.println( "Columna " + s.right );
+         
+    }
+    public  ArrayList<nodoerror> Sin()
+    {
+        return sitactico;
+    }
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+         agregarerror(s.left,s.right,"sintacitico",s.value.toString());   
+         System.err.println("Error de Sintaxis----b");
+         System.err.println(s.value.toString());
+         System.err.println( "Linea " + s.left );
+         System.err.println( "Columna " + s.right );
+    }
+
+:}
+action code
+{:
+    // acciones que podemos hacer en le codigo
+    NodoArbol raiz,izq,der,nodo;
+    private NodoArbol CrearHoja(String produccion,String valor,int linea,int colum)
+    {
+        NodoArbol nodo= new NodoArbol(poduccion,valor,linea,colum);
+        return nodo;
+    }
+    private NodoArbol AddHijo(NodoArbol raiz,NodoArbol hijo){
+            raiz.add(hijo);
+            return raiz;
+     }
+
+:}
+
+terminal String CHTML,FINCHTML,ENCABEZADO,FINENCABEZADO,CJS,FINCJS,CCSS,FINCCSS,         
+TITULO,FINTITULO,CUERPO,FINCUERPO,PANEL,FINPANEL,IMAGEN,FINIMAGEN,BOTON,FINBOTON        
+ENLACE,FINENLACE;
+
+terminal String TEXTO,FINTEXTO,CAJATEXTO,FINCAJATEXTO,TEXTOA,FINTEXTOA;
+
+termianl String TABLA,FINTABLA,FILT,FINFILT,CB,FINCB,CT,FINCT;
+
+terminal String CAJA,FINCAJA,OPCION,FINOPCION,VALOR,SPINNER, 
+FINSPINER,SALTOFIN,CLICK,RUTA;
+
+terminal String ID,GRUPO,ALTO,ANCHO,ALINEADO,ABRIR,CERAR           
+PUNTOCOMA,IGUAL,PARIZQ,PARDER,ECADENA,ETEXTO;
+
+nonterminal String inicio;
+nonterminal String encabezado,lcompencabezado,compencabezado;
+nonterminal String titulo,ccss,cjs;
+nonterminal String cuerpo,lcompcuerpo,compcuerpo;       
+
+nonterminal String ruta,click,evento;
+
+nonterminal String  lopciones , opciones, id, grupo, ancho , alto ,alineado;
+
+nonterminal String panel,texto,imagen,boton,enlace;
+
+nonterminal String tabla,lencabezado,celda;
+
+nonterminal String textoa,cajatexto;
+
+nonterminal String caja,lopcion,opcion;
+
+nontermial  String spinner,saltofin;
+
+start with inicio;
+
+inicio  ::= ABRIR CHTML CERRAR encabezado cuerpo ABRIT FINCHTML CERRAR;
+
+encabezado ::= ABRIR ENCABEZADO CERRAR lcompencabezado ABRIR FINENCABEZADO CERRAR;
+
+lcompencabezado ::= lcompencabezado compencabezado
+                | compencabezado;
+
+compencabezado  ::= titulo
+                |csss
+                |cjs;
+
+titulo     ::= ABRIR TITULO CERRAR ETEXTO ABRIR FINTITULO CERRAR;
+
+ccss       ::= ABRIR CCSS RUTA IGUAL ECADENA PUNTOCOMA CERRAR ABRIR FINCCSS CERRAR
+           | ABRIR CCSS CERRAR ECADENA ABRIR FINCCSS CERRAR;
+
+cjs        ::= ABRIR CJS RUTA IGUAL ECADENA PUNTOCOMA CERRAR  ABRIR FINCJS CERRAR
+           | ABRIR CJS CERRAR ECADENA ABRIR FINCJS CERRAR;
+
+
+cuerpo     ::= ABRIR CUERPO CERRAR lcompcuerpo ABRIR FINCUERPO CERRAR;
+
+lcompcuerpo ::= lcompcuerpo compcuerpo
+            | compcuerpo;  
+
+compcuerpo  ::= panel
+            |texto
+            |imagen
+            |boton
+            |enlace
+            |tabla
+            |textoa
+            |cajatexto
+            |caja
+            |spinner
+            |saltofin;
+
+
+panel       ::= ABRIR PANEL lopciones CERRAR lcompcuerpo ABRIR FINPANEL CERRAR
+            | ABRIR PANEL CERRAR lcompcuerpo ABRIR FINPANEL CERRAR
+            | ABRIR PANEL lopciones CERRAR  ABRIR FINPANEL CERRAR
+            | ABRIR PANEL CERRAR ABRIR FINPANEL CERRAR;
+
+texto       ::= ABRIR TEXTO lopciones CERRAR ETEXTO ABRIR FINTEXTO CERRAR
+            |ABRIR TEXTO CERRAR ETEXTO ABRIR FINTEXTO CERRAR
+            |ABRIR TEXTO lopciones CERRAR  ABRIR FINTEXTO CERRAR
+            |ABRIR TEXTO CERRAR  ABRIR FINTEXTO CERRAR;
+
+imagen      ::= ABRIR IMAGEN CERRAR ECADENA ABRIR FINIMAGEN CERRAR
+            |ABRIR IMAGEN lopciones CERRAR ECADENA ABRIR FINIMAGEN CERRAR
+            |ABRIR IMAGEN lopciones ruta CERRAR  ABRIR FINIMAGEN CERRAR
+            |ABRIR IMAGEN ruta CERRAR  ABRIR FINIMAGEN CERRAR
+            |ABRIR IMAGEN ruta lopciones  CERRAR  ABRIR FINIMAGEN CERRAR
+            |ABRIR IMAGEN CERRAR  ABRIR FINIMAGEN CERRAR
+            |ABRIR IMAGEN lopciones CERRAR  ABRIR FINIMAGEN CERRAR;   
+
+boton       ::= ABRIR BOTON lopciones evento CERRAR ETEXTO ABRIR FINBOTON CERRAR
+            | ABRIR BOTON evento lopciones  CERRAR ETEXTO ABRIR FINBOTON CERRAR
+            | ABRIR BOTON evento CERRAR ETEXTO ABRIR FINBOTON CERRAR
+            | ABRIR BOTON CERRAR ETEXTO ABRIR FINBOTON CERRAR;
+
+            
+
+evento      ::= ruta click
+            | click ruta
+            | ruta
+            | click;
+
+ruta        ::= RUTA IGUAL ECADENA PUNTOCOMA;
+
+click       ::= CLICK IGUAL ECADENA PUNTOCOMA;
+
+lopciones   ::= lopciones opciones
+            |opciones;
+
+opciones    ::= id
+            |grupo
+            |ancho
+            |alto
+            |alineado;
+            
+
+id          ::= ID IGUAL ECADENA PUNTOCOMA;
+grupo       ::= GRUPO IGUAL ECADENA PUNTOCOMA;
+alto        ::= ALTO IGUAL ECADENA PUNTOCOMA;
+ancho       ::= ANCHO IGUAL ECADENA PUNTOCOMA;
+alineado    ::= ALINEADO IGUAL ECADENA PUNTOCOMA;
+
+
+
 
