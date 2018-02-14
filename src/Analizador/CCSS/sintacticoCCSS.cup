@@ -1,1 +1,69 @@
-package Analizador.CCSSS;
+package Analizador.CCSS;
+
+import java_cup.runtime.Symbol;
+import EstructurasDatos.NodoArbol;
+import EstructurasDatos.NodoError;
+import java.util.ArrayList;
+//parser ccss
+
+parser code
+{:
+    public String archivo="null";
+    public static ArrayList<NodoError> sitactico= new ArrayList<NodoError>();
+    public void agregarerror(int linea,int columna,String tipo,String men)
+    {
+       NodoError er= new NodoError(linea, columna, tipo, men,archivo);
+       sitactico.add(er);
+    }
+    public static String errorSin="";
+    public void syntax_error(Symbol s){
+         agregarerror(s.left,s.right,"sintacitico",s.value.toString());
+         errorSin=errorSin+"Error en la Línea " + (s.right+1) +" Columna "+s.left+ ". Identificador "+s.value + " no reconocido."+"\n";
+         System.err.println("Error de Sintaxis---a");
+         System.err.println(s.value.toString());
+         System.err.println( "Linea " + s.left );
+         System.err.println( "Columna " + s.right );
+         
+    }
+    public  ArrayList<NodoError> Sin()
+    {
+        return sitactico;
+    }
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+         agregarerror(s.left,s.right,"sintacitico",s.value.toString());   
+         System.err.println("Error de Sintaxis----b");
+         System.err.println(s.value.toString());
+         System.err.println( "Linea " + s.left );
+         System.err.println( "Columna " + s.right );
+    }
+
+:}
+action code
+{:
+    // acciones que podemos hacer en le codigo
+    NodoArbol raiz,izq,der,nodo;
+    private NodoArbol CrearHoja(String produccion,String valor,int linea,int colum)
+    {
+        NodoArbol nodo= new NodoArbol(produccion,valor,linea,colum);
+        return nodo;
+    }
+    private NodoArbol AddHijo(NodoArbol raiz,NodoArbol hijo){
+            raiz.add(hijo);
+            return raiz;
+     }
+
+:}
+
+terminal String ALINEADO , IZQUIERDA , DERECHA , CENTRADO , JUSTIFICADO;
+
+terminal String TEXTO;
+
+terminal String FORMATO , NEGRILLA , CURSIVA , MAYUSC , MININ , CAPITALT;
+
+terminal String LETRA , TAMTEX , FONDOELEMTO , AUTOREDIMEN , VISIBLE ,     
+BORDE , OPAQUE , COLORTEXT , GRUPO , ID;
+
+terminal String CORCHEIZQ , CORCHEDER , PARIZQ , PARDER , PUNTOCOMA , DOSPUNTOS , IGUAL      
+MAS , MENOS , POR , DIVI;
+
+terminal String EVERDADERO , EFALSO , EID , ENUMERO , ECADENA;
