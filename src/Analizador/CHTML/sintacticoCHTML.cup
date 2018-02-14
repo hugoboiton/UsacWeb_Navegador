@@ -79,8 +79,7 @@ nonterminal String  lopciones , opciones, id, grupo, ancho , alto ,alineado;
 
 nonterminal String panel,texto,imagen,boton,enlace;
 
-nonterminal String tabla,componentestabla,tablaencabezado,
-cb,lcb,celdas,celda,lct,ct,cuerpotabla;
+nonterminal String tabla,celdas,celda,lct,ct,cuerpotabla;
 
 nonterminal String textoa,cajatexto;
 
@@ -88,11 +87,13 @@ nonterminal String caja,lopcion,opcion,valor;
 
 nonterminal  String spinner,saltofin;
 
+
 start with inicio;
 
 inicio  ::= ABRIR CHTML CERRAR encabezado cuerpo ABRIR FINCHTML CERRAR;
 
-encabezado ::= ABRIR ENCABEZADO CERRAR lcompencabezado ABRIR FINENCABEZADO CERRAR;
+encabezado ::= ABRIR ENCABEZADO CERRAR lcompencabezado ABRIR FINENCABEZADO CERRAR
+            |ABRIR ENCABEZADO CERRAR ABRIR FINENCABEZADO CERRAR;
 
 lcompencabezado ::= lcompencabezado compencabezado
                 | compencabezado;
@@ -110,7 +111,8 @@ cjs        ::= ABRIR CJS RUTA IGUAL ECADENA PUNTOCOMA CERRAR  ABRIR FINCJS CERRA
            | ABRIR CJS CERRAR ECADENA ABRIR FINCJS CERRAR;
 
 
-cuerpo     ::= ABRIR CUERPO CERRAR lcompcuerpo ABRIR FINCUERPO CERRAR;
+cuerpo     ::= ABRIR CUERPO CERRAR lcompcuerpo ABRIR FINCUERPO CERRAR
+           |ABRIR CUERPO CERRAR  ABRIR FINCUERPO CERRAR;
 
 lcompcuerpo ::= lcompcuerpo compcuerpo
             | compcuerpo;  
@@ -153,17 +155,8 @@ enlace      ::= ABRIR ENLACE lopciones CERRAR ETEXTO ABRIR FINENLACE CERRAR
             |ABRIR ENLACE CERRAR  ABRIR FINENLACE CERRAR
             |ABRIR ENLACE lopciones CERRAR ABRIR FINENLACE CERRAR;
 
-tabla       ::= ABRIR TABLA lopciones CERRAR componentestabla ABRIR FINTABLA CERRAR
-            |ABRIR TABLA CERRAR componentestabla ABRIR FINTABLA CERRAR;
-
-componentestabla ::= tablaencabezado ;
-
-tablaencabezado  ::= ABRIR FILT CERRAR lcb ABRIR FINFILT CERRAR;
-                
-lcb       ::= lcb cb
-          |cb;
-
-cb      ::= ABRIR CB CERRAR cuerpotabla ABRIR FINCB CERRAR;
+tabla       ::= ABRIR TABLA lopciones CERRAR celdas ABRIR FINTABLA CERRAR
+            |ABRIR TABLA CERRAR celdas ABRIR FINTABLA CERRAR;
 
 celdas  ::= celdas celda
         | celda;   
@@ -173,7 +166,11 @@ celda ::= ABRIR FILT CERRAR lct ABRIR FINFILT CERRAR;
 lct ::= lct ct
     |ct;
 
-ct ::= ABRIR CT CERRAR cuerpotabla ABRIR FINCT CERRAR;
+ct ::= ABRIR CT CERRAR cuerpotabla ABRIR FINCT CERRAR
+   | ABRIR CT CERRAR  ABRIR FINCT CERRAR
+   |ABRIR CB CERRAR cuerpotabla ABRIR FINCB CERRAR
+   | ABRIR CB CERRAR ABRIR FINCB CERRAR;
+
 
 cuerpotabla ::= texto
             |textoa
