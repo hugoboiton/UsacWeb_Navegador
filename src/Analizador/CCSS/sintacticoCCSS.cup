@@ -60,10 +60,119 @@ terminal String TEXTO;
 
 terminal String FORMATO , NEGRILLA , CURSIVA , MAYUSC , MININ , CAPITALT;
 
-terminal String LETRA , TAMTEX , FONDOELEMTO , AUTOREDIMEN , VISIBLE ,     
+terminal String LETRA , TAMTEX , FONDOELEMTO , AUTOREDIMEN ,VERTICAL,HORIZONTAL, VISIBLE ,     
 BORDE , OPAQUE , COLORTEXT , GRUPO , ID;
 
 terminal String CORCHEIZQ , CORCHEDER , PARIZQ , PARDER , PUNTOCOMA , DOSPUNTOS , IGUAL      
-MAS , MENOS , POR , DIVI;
+MAS , MENOS , POR , DIVI,COMA;
 
 terminal String EVERDADERO , EFALSO , EID , ENUMERO , ECADENA;
+
+nonterminal String inicio,cuerpo,bloqueccss;
+
+nonterminal String  elemento,lelemento;
+
+nonterminal String id ,grupo;
+
+nonterminal String lpropiedades propiedad;
+
+nonterminal String alineado, opalineado;
+
+nonterminal String texto;
+
+nonterminal String formato,lopfor, opfor;
+
+nonterminal String letra,tamtex,fondoelemento;
+
+nonterminal String autoredi , op1,op2;
+
+nonterminal String visible,borde,opaque,colortext;
+
+nonterminal String exp, val;
+
+precedence left MAS,MENOS;
+precedence left POR,DIVI;
+
+start with inicio;
+
+inicio ::= cuerpo;
+
+cuerpo ::= cuerpo bloqueccss
+	   | bloqueccss;
+
+bloqueccss ::= EID CORCHEIZQ lelemento CORCHEDER;
+
+lelemento ::= lelemento elemento
+		  |elemento;
+
+elemento ::=id lpropiedades
+		 |grupo lpropiedades;
+
+id  	::= ID PARIZQ EID PARDER PUNTOCOMA;
+
+grupo   ::= GRUPO PARIZQ EID PARDER PUNTOCOMA;
+
+lpropiedades ::= lpropiedades propiedad; 
+
+propiedad	 ::= alineado
+			 |texto
+			 |formato
+			 |letra
+			 |tamtex
+			 |fondoelemento
+			 |autoredi
+			 |visible
+			 |borde
+			 |opaque
+			 |colortext;
+
+alineado    ::= ALINEADO DOSPUNTOS IGUAL opalineado PUNTOCOMA;
+
+opalineado  ::= JUSTIFICADO
+			|CENTRADO
+			|DERECHA
+			|IZQUIERDA;
+
+texto    ::= TEXTO DOSPUNTOS IGUAL exp PUNTOCOMA;
+
+formato  ::= FORMATO DOSPUNTOS IGUAL lopfor PUNTOCOMA;
+
+lopfor	::= lopfor COMA opfor
+		|opfor;
+
+opfor	::= NEGRILLA
+		|CURSIVA
+		|MAYUSC
+		|MININ
+		|CAPITALT;
+
+letra   ::= LETRA DOSPUNTOS IGUAL ECADENA PUNTOCOMA;
+
+tamtex  ::= TAMTEX DOSPUNTOS IGUAL exp PUNTOCOMA;
+
+fondoelemento ::= FONDOELEMTO DOSPUNTOS IGUAL ECADENA PUNTOCOMA;
+
+autoredi  ::= AUTOREDIMEN DOSPUNTOS IGUAL CORCHEIZQ op1 COMA op2 CORCHEDER PUNTOCOMA;
+
+op1 ::= EVERDADERO
+	|EFALSO;
+
+op2 ::= VERTICAL
+	|HORIZONTAL;
+
+visible ::= VISIBLE DOSPUNTOS IGUAL op1 DOSPUNTOS;
+
+borde   ::= BORDE DOSPUNTOS IGUAL CORCHEIZQ exp COMA ECADENA COMA op1 CORCHEDER PUNTOCOMA; 		
+
+opaque  ::= OPAQUE DOSPUNTOS IGUAL op1;
+
+colortext ::= COLORTEXT DOSPUNTOS IGUAL ECADENA;	
+
+exp ::= exp MAS exp
+	|exp MENOS exp
+	|exp POR exp
+	|exp DIVI exp
+	|val;
+
+val ::= ENUMERO
+    |ECADENA;

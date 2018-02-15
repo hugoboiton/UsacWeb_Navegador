@@ -46,6 +46,8 @@ LETRA       = Letra
 TAMTEX      = Tamtex
 FONDOELEMTO = Fonodoelemento
 AUTOREDIMEN = AutoRedimension
+VERTICAL    = Vertical    
+HORIZONTAL  = Horizontal
 VISIBLE     = Visible
 BORDE       = Borde
 OPAQUE     = Opaque
@@ -64,6 +66,7 @@ MAS         = "+"
 MENOS       = "-"
 POR         = "*"
 DIVI        = "/"
+COMA        = ","
 
 
 EVERDADERO = (true|verdadero)
@@ -97,6 +100,8 @@ ENTER   = [\ \n]
 {TAMTEX}        { return new Symbol(sym.TAMTEX, yyline, yycolumn, yytext()); }  
 {FONDOELEMTO}   { return new Symbol(sym.FONDOELEMTO, yyline, yycolumn, yytext()); }  
 {AUTOREDIMEN}   { return new Symbol(sym.AUTOREDIMEN, yyline, yycolumn, yytext()); }  
+{VERTICAL}      { return new Symbol(sym.VERTICAL, yyline, yycolumn, yytext()); }  
+{HORIZONTAL}    { return new Symbol(sym.HORIZONTAL, yyline, yycolumn, yytext()); }  
 {VISIBLE}       { return new Symbol(sym.VISIBLE, yyline, yycolumn, yytext()); }  
 {BORDE}         { return new Symbol(sym.BORDE, yyline, yycolumn, yytext()); }  
 {OPAQUE}        { return new Symbol(sym.OPAQUE, yyline, yycolumn, yytext()); }  
@@ -115,6 +120,7 @@ ENTER   = [\ \n]
 {MENOS}         { return new Symbol(sym.MENOS, yyline, yycolumn, yytext()); }  
 {POR}           { return new Symbol(sym.POR, yyline, yycolumn, yytext()); }  
 {DIVI}          { return new Symbol(sym.DIVI, yyline, yycolumn, yytext()); }  
+{COMA}          { return new Symbol(sym.COMA, yyline, yycolumn, yytext()); }  
 
 {EVERDADERO}    { return new Symbol(sym.EVERDADERO, yyline, yycolumn, yytext()); }  
 {EFALSO}        { return new Symbol(sym.EFALSO, yyline, yycolumn, yytext()); }  
