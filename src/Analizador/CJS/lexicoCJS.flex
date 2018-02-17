@@ -32,6 +32,7 @@ import EstructurasDatos.NodoError;
 
 DIMV        = Dimv
 ATEXTO      = aTexto
+CONTEO      = conteo
 SI          = Si 
 SINO        = Sino
 SELECCIONA  = Selecciona
@@ -54,6 +55,7 @@ MENOS       = "-"
 DIVI        = "/"
 POR         = "*"
 MOD         = "%"
+POT         = "^"
 AUMENTO     = "++"
 DECREMENTO  = "--"
 
@@ -78,14 +80,14 @@ LLAVEDER    = "}"
 PUNTO       = "."
 
 
-EVERDARERO   = (true|verdadero)
-EFALSO       = (false|falso)
+EVERDARERO   = ('true'|'verdadero')
+EFALSO       = ('false|falso')
 
 EID         = [A-Za-z][_0-9A-Za-z]*
 ENUMERO     = [0-9]+("."[0-9]+)?
 ECADENA     = [\"][^\"]+[\"]
-EDATE       = (?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}
-EDATETIME   = [0-3][0-9][/][0-1][0-9][/][0-9][0-9][0-9][0-9][ ][0-2][0-9][:][0-5][0-9][:][0-5][0-9]
+EDATE       = ['][0-3][0-9][/][0-1][0-9][/][0-9][0-9][0-9][0-9][']
+EDATETIME   = ['][0-3][0-9][/][0-1][0-9][/][0-9][0-9][0-9][0-9][ ][0-2][0-9][:][0-5][0-9][:][0-5][0-9][']
 
 COMENTARIO1     = ['][^\n]+
 COMENTARIO2     = ['][/][^/]+[/][']
@@ -97,6 +99,7 @@ ENTER   = [\ \n]
 
 {DIMV}          { return new Symbol(sym.DIMV, yyline, yycolumn, yytext()); } 
 {ATEXTO}        { return new Symbol(sym.ATEXTO, yyline, yycolumn, yytext()); } 
+{CONTEO}        { return new Symbol(sym.CONTEO, yyline, yycolumn, yytext()); } 
 {SI}            { return new Symbol(sym.SI, yyline, yycolumn, yytext()); } 
 {SINO}          { return new Symbol(sym.SINO, yyline, yycolumn, yytext()); } 
 {SELECCIONA}    { return new Symbol(sym.SELECCIONA, yyline, yycolumn, yytext()); } 
@@ -119,6 +122,7 @@ ENTER   = [\ \n]
 {DIVI}          { return new Symbol(sym.DIVI, yyline, yycolumn, yytext()); } 
 {POR}           { return new Symbol(sym.POR, yyline, yycolumn, yytext()); } 
 {MOD}           { return new Symbol(sym.MOD, yyline, yycolumn, yytext()); } 
+{POT}           { return new Symbol(sym.POT, yyline, yycolumn, yytext()); }
 {AUMENTO}       { return new Symbol(sym.AUMENTO, yyline, yycolumn, yytext()); }  
 {DECREMENTO}    { return new Symbol(sym.DECREMENTO, yyline, yycolumn, yytext()); } 
 

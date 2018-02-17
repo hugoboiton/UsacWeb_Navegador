@@ -54,28 +54,220 @@ action code
 
 :}
 
-terminal String DIMV , ATEXTO;
+terminal String DIMV , ATEXTO,CONTEO;
 
-terminal String SI , SINO , SELECCIONA , CASO,        
-DEFECTO;    
+terminal String SI , SINO , SELECCIONA , CASO,DEFECTO;    
 
 terminal String PARA , MIENTRAS , DETENER ;     
 
-terminal String IMPRIMIR , FUNCION , RETORNAR    
-MENSAJE , DOCUMETO , OBSERVADOR , OBTENER ,     
-SETELEMENTO;
+terminal String IMPRIMIR , FUNCION , RETORNAR ,MENSAJE ,
+ DOCUMETO , OBSERVADOR , OBTENER , SETELEMENTO;
 
-terminal String MAS , MENOS , DIVI , POR         
-MOD , AUMENTO , DECREMENTO;   
+terminal String MAS , MENOS , DIVI , POR ,        
+MOD , POT , AUMENTO , DECREMENTO;   
 
-termiannl String IGUALIGUAL , DIFERENTE , MENOR       
+terminal String IGUALIGUAL , DIFERENTE , MENOR ,      
 MAYOR , MENORIGUAL , MAYOTIGUAL;  
 
-terminal String AND , OR , DIFERENTE;   
+terminal String AND , OR , NOT;   
 
-termianl String DOSPUNTOS , PUNTOCOMA ,   
-COMA , PARIZQ , PARDER , LLAVEIZQ , LLAVEDER    
-PUNTO , EVERDARERO , EFALSO;       
+terminal String DOSPUNTOS , PUNTOCOMA , COMA , 
+PARIZQ , PARDER , LLAVEIZQ , LLAVEDER , PUNTO , EVERDARERO , EFALSO;       
 
-termianl String EID , ENUMERO , ECADENA     
-EDATE , EDATETIME;   
+terminal String EID , ENUMERO , ECADENA ,EDATE , EDATETIME;   
+
+nonterminal String inicio,lcuerpo,cuerpo;
+
+nonterminal String declararvar,asignarvar;
+
+nonterminal String declararvec,asignarvec,lvalores;
+nonterminal String funcionesVector;
+
+nonterminal String si;
+
+nonterminal String seleccionar ,lcaso ,caso ,defecto;
+
+nonterminal String para,para0,para1;
+
+nonterminal String mientras;
+
+nonterminal String detener;
+
+nonterminal String imprimir;
+
+nonterminal String mensaje;
+
+nonterminal String retorno;
+
+nonterminal String llamdaFunciones;
+
+nonterminal String funciones ,lparametros;
+
+nonterminal String lsen,sent;
+
+nonterminal String logica ,relacional,op,exp,valor;
+
+nonterminal String eventos , listaEventos,evento;
+
+nonterminal String obtener,observador,obs0,setelem;
+
+nonterminal String valorchtml;
+
+precedence left OR;
+precedence left AND;
+precedence right NOT;
+
+precedence left MAS,MENOS;
+precedence left POR,DIVI,MOD;
+precedence right POT;
+precedence right AUMENTO,DECREMENTO;
+
+precedence nonassoc PARIZQ,PARDER;
+
+start with inicio;
+
+inicio  ::= lcuerpo;
+
+lcuerpo  ::= lcuerpo cuerpo
+         |cuerpo;
+
+cuerpo   ::=  declararvar PUNTOCOMA
+         |declararvec
+         |llamdaFunciones PUNTOCOMA
+         |funciones;
+
+
+funciones ::= FUNCION EID PARIZQ  PARDER LLAVEIZQ lsen LLAVEDER
+          |FUNCION EID PARIZQ lparametros PARDER LLAVEIZQ lsen LLAVEDER;
+
+lparametros ::= lparametros COMA EID
+        |EID; 
+
+declararvar ::= DIMV EID  DOSPUNTOS logica 
+           |DIMV EID ;
+asignarvar ::= EID DOSPUNTOS logica;
+
+declararvec ::= DIMV EID LLAVEIZQ logica LLAVEDER PUNTOCOMA
+            |DIMV EID DOSPUNTOS LLAVEIZQ lvalores LLAVEDER PUNTOCOMA;
+
+lvalores   ::= lvalores COMA logica
+           |logica;
+
+asignarvec ::= EID LLAVEIZQ logica LLAVEDER DOSPUNTOS logica PUNTOCOMA;
+
+funcionesVector ::= EID PUNTO CONTEO
+                |EID PUNTO ATEXTO PARIZQ PARDER
+                |EID LLAVEIZQ logica LLAVEDER;
+
+lsen    ::= lsen sent
+        |sent;
+
+sent     ::= declararvar PUNTOCOMA
+        |asignarvar PUNTOCOMA
+        |declararvec
+        |asignarvec
+        |si
+        |seleccionar
+        |para
+        |mientras
+        |detener
+        |imprimir
+        |mensaje
+        |retorno
+        |llamdaFunciones PUNTOCOMA
+        |eventos PUNTOCOMA
+        |valorchtml PUNTOCOMA;
+
+si      ::= SI PARIZQ logica PARDER LLAVEIZQ lsen LLAVEDER
+        |SI PARIZQ logica PARDER LLAVEIZQ lsen LLAVEDER SINO LLAVEIZQ lsen LLAVEDER;
+
+seleccionar ::= SELECCIONA PARIZQ logica PARDER LLAVEIZQ lcaso LLAVEDER  
+            |SELECCIONA PARIZQ logica PARDER LLAVEIZQ lcaso defecto LLAVEDER;
+
+lcaso       ::= lcaso caso
+            |caso;
+
+caso  ::= CASO logica DOSPUNTOS lsen;
+
+defecto ::= DEFECTO DOSPUNTOS lsen;
+
+para   ::= PARA PARIZQ para0 PUNTOCOMA logica PUNTOCOMA para1 PARDER LLAVEIZQ lsen LLAVEDER;
+
+para0 ::= declararvar
+        |asignarvar;
+
+para1 ::= AUMENTO
+      |DECREMENTO;
+
+mientras ::= MIENTRAS PARIZQ logica PARDER LLAVEIZQ lsen LLAVEDER;
+
+detener  ::= DETENER PUNTOCOMA;
+
+retorno  ::= RETORNAR logica PUNTOCOMA;
+
+imprimir  ::= IMPRIMIR PARIZQ logica PARDER;
+
+mensaje  ::= MENSAJE PARIZQ logica PARDER;
+
+llamdaFunciones ::= EID PARIZQ PARDER
+                |EID PARIZQ lvalores PARDER;
+
+logica  ::= logica OR logica
+        |logica AND logica
+        |NOT logica
+        |PARIZQ logica PARDER
+        |relacional;
+
+relacional  ::= relacional op exp
+            |exp;
+
+op ::= IGUALIGUAL
+   |DIFERENTE
+   |MENOR
+   |MENORIGUAL
+   |MAYOR
+   |MAYOTIGUAL;
+
+exp ::= exp MAS exp
+    |exp MENOS exp
+    |exp POR exp
+    |exp DIVI exp
+    |exp MOD exp
+    |exp POT exp
+    |exp AUMENTO
+    |exp DECREMENTO
+    |PARIZQ exp PARDER
+    |valor;
+
+valor ::= EVERDARERO
+      |EFALSO 
+      |ECADENA
+      |ENUMERO
+      |EDATETIME
+      |EDATE
+      |EID
+      |funcionesVector
+      |llamdaFunciones
+      |eventos
+      |valorchtml;
+
+
+eventos ::= DOCUMETO PUNTO listaEventos;
+
+listaEventos ::=listaEventos PUNTO evento
+             |evento;
+
+evento ::= obtener
+       |observador
+       |setelem;
+
+obtener ::= OBTENER PARIZQ logica PARDER;
+
+observador ::= OBSERVADOR PARIZQ logica COMA obs0 PARDER;
+
+obs0 ::= llamdaFunciones
+     |funciones;
+
+setelem ::=SETELEMENTO PARIZQ logica COMA logica PARIZQ;
+
+valorchtml  ::= EID PUNTO setelem;
