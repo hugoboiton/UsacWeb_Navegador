@@ -63,7 +63,7 @@ terminal String FORMATO , NEGRILLA , CURSIVA , MAYUSC , MININ , CAPITALT;
 terminal String LETRA , TAMTEX , FONDOELEMTO , AUTOREDIMEN ,VERTICAL,HORIZONTAL, VISIBLE ,     
 BORDE , OPAQUE , COLORTEXT , GRUPO , ID;
 
-terminal String CORCHEIZQ , CORCHEDER , PARIZQ , PARDER , PUNTOCOMA , DOSPUNTOS , IGUAL      
+terminal String CORCHEIZQ , CORCHEDER , PARIZQ , PARDER , PUNTOCOMA , DOSPUNTOS , IGUAL,      
 MAS , MENOS , POR , DIVI,COMA;
 
 terminal String EVERDADERO , EFALSO , EID , ENUMERO , ECADENA;
@@ -74,7 +74,7 @@ nonterminal String  elemento,lelemento;
 
 nonterminal String id ,grupo;
 
-nonterminal String lpropiedades propiedad;
+nonterminal String lpropiedades ,propiedad;
 
 nonterminal String alineado, opalineado;
 
@@ -105,12 +105,12 @@ bloqueccss ::= EID CORCHEIZQ lelemento CORCHEDER;
 lelemento ::= lelemento elemento
 		  |elemento;
 
-elemento ::=id lpropiedades
-		 |grupo lpropiedades;
+elemento ::=id 
+         |grupo ;   
 
-id  	::= ID PARIZQ EID PARDER PUNTOCOMA;
+id  	::= ID PARIZQ EID PARDER PUNTOCOMA lpropiedades;
 
-grupo   ::= GRUPO PARIZQ EID PARDER PUNTOCOMA;
+grupo   ::= GRUPO PARIZQ EID PARDER PUNTOCOMA lpropiedades;
 
 lpropiedades ::= lpropiedades propiedad; 
 
@@ -164,9 +164,9 @@ visible ::= VISIBLE DOSPUNTOS IGUAL op1 DOSPUNTOS;
 
 borde   ::= BORDE DOSPUNTOS IGUAL CORCHEIZQ exp COMA ECADENA COMA op1 CORCHEDER PUNTOCOMA; 		
 
-opaque  ::= OPAQUE DOSPUNTOS IGUAL op1;
+opaque  ::= OPAQUE DOSPUNTOS IGUAL op1 PUNTOCOMA;
 
-colortext ::= COLORTEXT DOSPUNTOS IGUAL ECADENA;	
+colortext ::= COLORTEXT DOSPUNTOS IGUAL ECADENA PUNTOCOMA;	
 
 exp ::= exp MAS exp
 	|exp MENOS exp

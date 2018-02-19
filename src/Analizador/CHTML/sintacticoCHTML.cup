@@ -17,12 +17,8 @@ parser code
     }
     public static String errorSin="";
     public void syntax_error(Symbol s){
-         agregarerror(s.left,s.right,"sintacitico",s.value.toString());
-         errorSin=errorSin+"Error en la Línea " + (s.right+1) +" Columna "+s.left+ ". Identificador "+s.value + " no reconocido."+"\n";
-         System.err.println("Error de Sintaxis---a");
-         System.err.println(s.value.toString());
-         System.err.println( "Linea " + s.left );
-         System.err.println( "Columna " + s.right );
+         agregarerror(s.left+1,s.right,"sintacitico",s.value.toString());
+         
          
     }
     public  ArrayList<NodoError> Sin()
@@ -30,11 +26,8 @@ parser code
         return sitactico;
     }
     public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
-         agregarerror(s.left,s.right,"sintacitico",s.value.toString());   
-         System.err.println("Error de Sintaxis----b");
-         System.err.println(s.value.toString());
-         System.err.println( "Linea " + s.left );
-         System.err.println( "Columna " + s.right );
+         //agregarerror(s.left+1,s.right,"sintacitico",s.value.toString());   
+         
     }
 
 :}
@@ -63,7 +56,7 @@ terminal String TEXTO,FINTEXTO,CAJATEXTO,FINCAJATEXTO,TEXTOA,FINTEXTOA;
 terminal String TABLA,FINTABLA,FILT,FINFILT,CB,FINCB,CT,FINCT;
 
 terminal String CAJA,FINCAJA,OPCION,FINOPCION,VALOR,SPINNER, 
-FINSPINNER,SALTOFIN,CLICK,RUTA;
+FINSPINNER,SALTOFIN,CLICK,RUTA,FONDO;
 
 terminal String ID,GRUPO,ALTO,ANCHO,ALINEADO,ABRIR,CERRAR,           
 PUNTOCOMA,IGUAL,ECADENA,ETEXTO;
@@ -75,11 +68,11 @@ nonterminal String cuerpo,lcompcuerpo,compcuerpo;
 
 nonterminal String ruta,click;
 
-nonterminal String  lopciones , opciones, id, grupo, ancho , alto ,alineado;
+nonterminal String  lopciones , opciones, id, grupo, ancho , alto ,alineado,fondo;
 
 nonterminal String panel,texto,imagen,boton,enlace;
 
-nonterminal String tabla,celdas,celda,lct,ct,cuerpotabla;
+nonterminal String tabla,celdas,celda,lct,ct,cuerpotabla,lcuerpotabla;
 
 nonterminal String textoa,cajatexto;
 
@@ -90,28 +83,39 @@ nonterminal  String spinner,saltofin;
 
 start with inicio;
 
-inicio  ::= ABRIR CHTML CERRAR encabezado cuerpo ABRIR FINCHTML CERRAR;
+inicio  ::= ABRIR CHTML CERRAR encabezado cuerpo ABRIR FINCHTML CERRAR 
+        {:
+            System.out.println("Gramatica corecta");
+        :}
+        |ABRIR CHTML CERRAR  ABRIR FINCHTML CERRAR
+        {:
+            System.out.println("Gramatica corecta");
+        :};
 
 encabezado ::= ABRIR ENCABEZADO CERRAR lcompencabezado ABRIR FINENCABEZADO CERRAR
             |ABRIR ENCABEZADO CERRAR ABRIR FINENCABEZADO CERRAR;
 
 lcompencabezado ::= lcompencabezado compencabezado
-                | compencabezado;
+                | compencabezado
+                | error ABRIR;
 
 compencabezado  ::= titulo
                 |ccss
                 |cjs;
 
-titulo     ::= ABRIR TITULO CERRAR ETEXTO ABRIR FINTITULO CERRAR;
+titulo     ::= ABRIR TITULO CERRAR ETEXTO ABRIR FINTITULO CERRAR
+           | ABRIR TITULO CERRAR ABRIR FINTITULO CERRAR;
 
-ccss       ::= ABRIR CCSS RUTA IGUAL ECADENA PUNTOCOMA CERRAR ABRIR FINCCSS CERRAR
+ccss       ::= ABRIR CCSS lopciones CERRAR ABRIR FINCCSS CERRAR
            | ABRIR CCSS CERRAR ECADENA ABRIR FINCCSS CERRAR;
 
-cjs        ::= ABRIR CJS RUTA IGUAL ECADENA PUNTOCOMA CERRAR  ABRIR FINCJS CERRAR
+cjs        ::= ABRIR CJS lopciones  CERRAR  ABRIR FINCJS CERRAR
            | ABRIR CJS CERRAR ECADENA ABRIR FINCJS CERRAR;
 
 
-cuerpo     ::= ABRIR CUERPO CERRAR lcompcuerpo ABRIR FINCUERPO CERRAR
+cuerpo     ::= ABRIR CUERPO lopciones CERRAR lcompcuerpo ABRIR FINCUERPO CERRAR
+           |ABRIR CUERPO lopciones CERRAR  ABRIR FINCUERPO CERRAR
+           |ABRIR CUERPO CERRAR lcompcuerpo ABRIR FINCUERPO CERRAR 
            |ABRIR CUERPO CERRAR  ABRIR FINCUERPO CERRAR;
 
 lcompcuerpo ::= lcompcuerpo compcuerpo
@@ -127,7 +131,8 @@ compcuerpo  ::= panel
             |cajatexto
             |caja
             |spinner
-            |saltofin;
+            |saltofin
+            |error ABRIR;
 
 
 panel       ::= ABRIR PANEL lopciones CERRAR lcompcuerpo ABRIR FINPANEL CERRAR
@@ -140,8 +145,8 @@ texto       ::= ABRIR TEXTO lopciones CERRAR ETEXTO ABRIR FINTEXTO CERRAR
             |ABRIR TEXTO lopciones CERRAR  ABRIR FINTEXTO CERRAR
             |ABRIR TEXTO CERRAR  ABRIR FINTEXTO CERRAR;
 
-imagen      ::= ABRIR IMAGEN CERRAR ECADENA ABRIR FINIMAGEN CERRAR
-            |ABRIR IMAGEN lopciones CERRAR ECADENA ABRIR FINIMAGEN CERRAR
+imagen      ::= ABRIR IMAGEN CERRAR ETEXTO ABRIR FINIMAGEN CERRAR
+            |ABRIR IMAGEN lopciones CERRAR ETEXTO ABRIR FINIMAGEN CERRAR
             |ABRIR IMAGEN CERRAR  ABRIR FINIMAGEN CERRAR
             |ABRIR IMAGEN lopciones CERRAR  ABRIR FINIMAGEN CERRAR;   
 
@@ -166,17 +171,22 @@ celda ::= ABRIR FILT CERRAR lct ABRIR FINFILT CERRAR;
 lct ::= lct ct
     |ct;
 
-ct ::= ABRIR CT CERRAR cuerpotabla ABRIR FINCT CERRAR
+ct ::= ABRIR CT CERRAR lcuerpotabla ABRIR FINCT CERRAR
    | ABRIR CT CERRAR  ABRIR FINCT CERRAR
-   |ABRIR CB CERRAR cuerpotabla ABRIR FINCB CERRAR
+   |ABRIR CB CERRAR lcuerpotabla ABRIR FINCB CERRAR
    | ABRIR CB CERRAR ABRIR FINCB CERRAR;
 
+
+lcuerpotabla ::= lcuerpotabla cuerpotabla
+            |cuerpotabla;
 
 cuerpotabla ::= texto
             |textoa
             |cajatexto
             |imagen
-            |boton;
+            |boton
+            |ETEXTO
+            |error ABRIR;
 
 textoa ::= ABRIR TEXTOA lopciones CERRAR ETEXTO ABRIR FINTEXTOA CERRAR
        |ABRIR TEXTOA CERRAR ETEXTO ABRIR FINTEXTOA CERRAR
@@ -196,9 +206,12 @@ caja ::= ABRIR CAJA lopciones CERRAR lopcion ABRIR FINCAJA CERRAR
 lopcion ::= lopcion opcion
         |opcion;
 
-opcion  ::= ABRIR OPCION valor CERRAR ETEXTO ABRIR FINOPCION CERRAR;
+opcion  ::= ABRIR OPCION valor CERRAR ETEXTO ABRIR FINOPCION CERRAR
+        | ABRIR OPCION valor CERRAR  ABRIR FINOPCION CERRAR
+        | ABRIR OPCION CERRAR ETEXTO ABRIR FINOPCION CERRAR
+        | ABRIR OPCION CERRAR  ABRIR FINOPCION CERRAR;
 
-valor  ::= VALOR IGUAL ECADENA;
+valor  ::= VALOR IGUAL ECADENA PUNTOCOMA;
 
 spinner ::= ABRIR SPINNER lopciones CERRAR ETEXTO ABRIR FINSPINNER CERRAR
         | ABRIR SPINNER CERRAR ETEXTO ABRIR FINSPINNER CERRAR
@@ -221,7 +234,9 @@ opciones    ::= id
             |alto
             |alineado
             |click
-            |ruta;
+            |ruta
+            |fondo
+            |error PUNTOCOMA;
             
 
 id          ::= ID IGUAL ECADENA PUNTOCOMA;
@@ -229,3 +244,4 @@ grupo       ::= GRUPO IGUAL ECADENA PUNTOCOMA;
 alto        ::= ALTO IGUAL ECADENA PUNTOCOMA;
 ancho       ::= ANCHO IGUAL ECADENA PUNTOCOMA;
 alineado    ::= ALINEADO IGUAL ECADENA PUNTOCOMA;
+fondo       ::= FONDO IGUAL ECADENA PUNTOCOMA;
