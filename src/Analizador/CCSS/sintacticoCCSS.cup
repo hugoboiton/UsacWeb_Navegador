@@ -17,12 +17,8 @@ parser code
     }
     public static String errorSin="";
     public void syntax_error(Symbol s){
-         agregarerror(s.left,s.right,"sintacitico",s.value.toString());
-         errorSin=errorSin+"Error en la Línea " + (s.right+1) +" Columna "+s.left+ ". Identificador "+s.value + " no reconocido."+"\n";
-         System.err.println("Error de Sintaxis---a");
-         System.err.println(s.value.toString());
-         System.err.println( "Linea " + s.left );
-         System.err.println( "Columna " + s.right );
+         agregarerror(s.left+1,s.right,"sintacitico",s.value.toString());
+         
          
     }
     public  ArrayList<NodoError> Sin()
@@ -30,11 +26,8 @@ parser code
         return sitactico;
     }
     public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
-         agregarerror(s.left,s.right,"sintacitico",s.value.toString());   
-         System.err.println("Error de Sintaxis----b");
-         System.err.println(s.value.toString());
-         System.err.println( "Linea " + s.left );
-         System.err.println( "Columna " + s.right );
+         //agregarerror(s.left+1,s.right,"sintacitico",s.value.toString());   
+         
     }
 
 :}
@@ -95,7 +88,11 @@ precedence left POR,DIVI;
 
 start with inicio;
 
-inicio ::= cuerpo;
+inicio ::= cuerpo
+        {:
+            System.out.println("Gramatica corecta");
+        :};
+
 
 cuerpo ::= cuerpo bloqueccss
 	   | bloqueccss;
@@ -112,7 +109,8 @@ id  	::= ID PARIZQ EID PARDER PUNTOCOMA lpropiedades;
 
 grupo   ::= GRUPO PARIZQ EID PARDER PUNTOCOMA lpropiedades;
 
-lpropiedades ::= lpropiedades propiedad; 
+lpropiedades ::= lpropiedades propiedad
+             |propiedad; 
 
 propiedad	 ::= alineado
 			 |texto
@@ -124,7 +122,8 @@ propiedad	 ::= alineado
 			 |visible
 			 |borde
 			 |opaque
-			 |colortext;
+			 |colortext
+             |error PUNTOCOMA;
 
 alineado    ::= ALINEADO DOSPUNTOS IGUAL opalineado PUNTOCOMA;
 
@@ -146,11 +145,11 @@ opfor	::= NEGRILLA
 		|MININ
 		|CAPITALT;
 
-letra   ::= LETRA DOSPUNTOS IGUAL ECADENA PUNTOCOMA;
+letra   ::= LETRA DOSPUNTOS IGUAL exp PUNTOCOMA;
 
 tamtex  ::= TAMTEX DOSPUNTOS IGUAL exp PUNTOCOMA;
 
-fondoelemento ::= FONDOELEMTO DOSPUNTOS IGUAL ECADENA PUNTOCOMA;
+fondoelemento ::= FONDOELEMTO DOSPUNTOS IGUAL exp PUNTOCOMA;
 
 autoredi  ::= AUTOREDIMEN DOSPUNTOS IGUAL CORCHEIZQ op1 COMA op2 CORCHEDER PUNTOCOMA;
 
@@ -160,13 +159,13 @@ op1 ::= EVERDADERO
 op2 ::= VERTICAL
 	|HORIZONTAL;
 
-visible ::= VISIBLE DOSPUNTOS IGUAL op1 DOSPUNTOS;
+visible ::= VISIBLE DOSPUNTOS IGUAL op1 PUNTOCOMA;
 
-borde   ::= BORDE DOSPUNTOS IGUAL CORCHEIZQ exp COMA ECADENA COMA op1 CORCHEDER PUNTOCOMA; 		
+borde   ::= BORDE DOSPUNTOS IGUAL CORCHEIZQ exp COMA exp COMA op1 CORCHEDER PUNTOCOMA; 		
 
 opaque  ::= OPAQUE DOSPUNTOS IGUAL op1 PUNTOCOMA;
 
-colortext ::= COLORTEXT DOSPUNTOS IGUAL ECADENA PUNTOCOMA;	
+colortext ::= COLORTEXT DOSPUNTOS IGUAL exp PUNTOCOMA;	
 
 exp ::= exp MAS exp
 	|exp MENOS exp

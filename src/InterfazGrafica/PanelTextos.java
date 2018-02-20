@@ -23,6 +23,8 @@ public class PanelTextos extends JPanel {
            
         this.setLayout(new BorderLayout());
         textArea = new RSyntaxTextArea(20, 60);
+        Font fuente=new Font("Consolas", Font.BOLD, 18);
+        textArea.setFont(fuente);
         textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
         textArea.setCodeFoldingEnabled(true);
         RTextScrollPane sp = new RTextScrollPane(textArea);

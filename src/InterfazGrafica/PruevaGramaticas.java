@@ -6,11 +6,14 @@
 package InterfazGrafica;
 import EstructurasDatos.AcccionesArchivos;
 import Analizador.CHTML.*;
+import Analizador.CCSS.*;
+import Analizador.CJS.*;
 import EstructurasDatos.NodoError;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.ArrayList;
 
 /**
  *
@@ -18,7 +21,7 @@ import java.util.logging.Logger;
  */
 public class PruevaGramaticas extends javax.swing.JFrame {
 
-    private PanelTextos texto;
+    //private PanelTextos texto;
     private AcccionesArchivos archivo;
     private PanelCodigo panelcodigo;
     /**
@@ -37,7 +40,14 @@ public class PruevaGramaticas extends javax.swing.JFrame {
         archivo = new AcccionesArchivos("");
                 
     }
+    void unirErrores(ArrayList<NodoError> lista)
+    {
+        for(NodoError nodo :lista)
+            {
+                panelcodigo.listaErroes.add(nodo);
+            }
 
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -69,8 +79,18 @@ public class PruevaGramaticas extends javax.swing.JFrame {
         });
 
         jButton3.setText("analizar ccss");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jButton4.setText("analizar cjs");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -116,20 +136,52 @@ public class PruevaGramaticas extends javax.swing.JFrame {
         parser.archivo=archivo.getNombreArchivo();
         try {
             parser.parse();
-            for(NodoError nodo :scanner.lex())
-            {
-                panelcodigo.listaErroes.add(nodo);
-            }
-            for(NodoError nodo :parser.Sin())
-            {
-                panelcodigo.listaErroes.add(nodo);
-            }
+            unirErrores(scanner.lex());
+            unirErrores(parser.Sin());
             panelcodigo.agregarErrores();
         } catch (Exception ex) {
             Logger.getLogger(PruevaGramaticas.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        scannerCCSS scanner;
+        parserCCSS parser;
+        
+        scanner =new scannerCCSS(new BufferedReader(new StringReader(panelcodigo.texto.Obtenertexto())));
+        parser = new parserCCSS(scanner);
+        scanner.archivo=archivo.getNombreArchivo();
+        parser.archivo=archivo.getNombreArchivo();
+        
+        try {
+            parser.parse();
+            unirErrores(scanner.lex());
+            unirErrores(parser.Sin());
+            panelcodigo.agregarErrores();
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        scannerCJS scanner;
+        parserCJS parser;
+        
+        scanner =new scannerCJS(new BufferedReader(new StringReader(panelcodigo.texto.Obtenertexto())));
+        parser = new parserCJS(scanner);
+        scanner.archivo=archivo.getNombreArchivo();
+        parser.archivo=archivo.getNombreArchivo();
+        
+        try {
+            parser.parse();
+            unirErrores(scanner.lex());
+            unirErrores(parser.Sin());
+            panelcodigo.agregarErrores();
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+    
     /**
      * @param args the command line arguments
      */

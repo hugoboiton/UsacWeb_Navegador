@@ -17,24 +17,15 @@ parser code
     }
     public static String errorSin="";
     public void syntax_error(Symbol s){
-         agregarerror(s.left,s.right,"sintacitico",s.value.toString());
-         errorSin=errorSin+"Error en la Línea " + (s.right+1) +" Columna "+s.left+ ". Identificador "+s.value + " no reconocido."+"\n";
-         System.err.println("Error de Sintaxis---a");
-         System.err.println(s.value.toString());
-         System.err.println( "Linea " + s.left );
-         System.err.println( "Columna " + s.right );
-         
+         agregarerror(s.left+1,s.right,"sintacitico",s.value.toString());         
     }
     public  ArrayList<NodoError> Sin()
     {
         return sitactico;
     }
     public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
-         agregarerror(s.left,s.right,"sintacitico",s.value.toString());   
-         System.err.println("Error de Sintaxis----b");
-         System.err.println(s.value.toString());
-         System.err.println( "Linea " + s.left );
-         System.err.println( "Columna " + s.right );
+         //agregarerror(s.left+1,s.right,"sintacitico",s.value.toString());   
+        
     }
 
 :}
@@ -126,7 +117,10 @@ precedence nonassoc PARIZQ,PARDER;
 
 start with inicio;
 
-inicio  ::= lcuerpo;
+inicio  ::= lcuerpo 
+        {:
+            System.out.println("Gramatica corecta");
+        :};
 
 lcuerpo  ::= lcuerpo cuerpo
          |cuerpo;
@@ -134,7 +128,11 @@ lcuerpo  ::= lcuerpo cuerpo
 cuerpo   ::=  declararvar PUNTOCOMA
          |declararvec
          |llamdaFunciones PUNTOCOMA
-         |funciones;
+         |funciones
+         |imprimir
+         |mensaje
+         |valorchtml PUNTOCOMA
+         |eventos PUNTOCOMA;
 
 
 funciones ::= FUNCION EID PARIZQ  PARDER LLAVEIZQ lsen LLAVEDER
@@ -148,12 +146,15 @@ declararvar ::= DIMV EID  DOSPUNTOS logica
 asignarvar ::= EID DOSPUNTOS logica;
 
 declararvec ::= DIMV EID LLAVEIZQ logica LLAVEDER PUNTOCOMA
-            |DIMV EID DOSPUNTOS LLAVEIZQ lvalores LLAVEDER PUNTOCOMA;
+            |DIMV EID DOSPUNTOS LLAVEIZQ lvalores LLAVEDER PUNTOCOMA
+            |DIMV EID LLAVEIZQ logica LLAVEDER DOSPUNTOS LLAVEIZQ lvalores LLAVEDER PUNTOCOMA;
 
 lvalores   ::= lvalores COMA logica
            |logica;
 
-asignarvec ::= EID LLAVEIZQ logica LLAVEDER DOSPUNTOS logica PUNTOCOMA;
+asignarvec ::= EID LLAVEIZQ logica LLAVEDER DOSPUNTOS logica PUNTOCOMA
+           |EID DOSPUNTOS LLAVEIZQ lvalores LLAVEDER PUNTOCOMA;
+
 
 funcionesVector ::= EID PUNTO CONTEO
                 |EID PUNTO ATEXTO PARIZQ PARDER
@@ -176,7 +177,8 @@ sent     ::= declararvar PUNTOCOMA
         |retorno
         |llamdaFunciones PUNTOCOMA
         |eventos PUNTOCOMA
-        |valorchtml PUNTOCOMA;
+        |valorchtml PUNTOCOMA
+        |error PUNTOCOMA;
 
 si      ::= SI PARIZQ logica PARDER LLAVEIZQ lsen LLAVEDER
         |SI PARIZQ logica PARDER LLAVEIZQ lsen LLAVEDER SINO LLAVEIZQ lsen LLAVEDER;
@@ -205,9 +207,9 @@ detener  ::= DETENER PUNTOCOMA;
 
 retorno  ::= RETORNAR logica PUNTOCOMA;
 
-imprimir  ::= IMPRIMIR PARIZQ logica PARDER;
+imprimir  ::= IMPRIMIR PARIZQ logica PARDER PUNTOCOMA;
 
-mensaje  ::= MENSAJE PARIZQ logica PARDER;
+mensaje  ::= MENSAJE PARIZQ logica PARDER PUNTOCOMA;
 
 llamdaFunciones ::= EID PARIZQ PARDER
                 |EID PARIZQ lvalores PARDER;
@@ -268,6 +270,6 @@ observador ::= OBSERVADOR PARIZQ logica COMA obs0 PARDER;
 obs0 ::= llamdaFunciones
      |funciones;
 
-setelem ::=SETELEMENTO PARIZQ logica COMA logica PARIZQ;
+setelem ::=SETELEMENTO PARIZQ logica COMA logica PARDER;
 
-valorchtml  ::= EID PUNTO setelem;
+valorchtml  ::= EID PUNTO listaEventos;

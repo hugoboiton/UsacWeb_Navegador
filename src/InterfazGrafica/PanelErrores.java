@@ -64,6 +64,7 @@ public class PanelErrores extends javax.swing.JPanel {
         setBorder(javax.swing.BorderFactory.createTitledBorder("Errores"));
         setLayout(new java.awt.BorderLayout());
 
+        tableError.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
         tableError.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
