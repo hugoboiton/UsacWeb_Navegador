@@ -52,10 +52,10 @@ action code
 
     }
     private String QuitarComillas(String cadena)
-    {:
+    {
         cadena=cadena.replace('\"', ' ');
         return cadena.trim();
-    :}
+    }
 
 :}
 
@@ -73,47 +73,74 @@ FINSPINNER,SALTOFIN,CLICK,RUTA,FONDO;
 terminal String ID,GRUPO,ALTO,ANCHO,ALINEADO,ABRIR,CERRAR,           
 PUNTOCOMA,IGUAL,ECADENA,ETEXTO;
 
-nonterminal String inicio;
-nonterminal String encabezado,lcompencabezado,compencabezado;
-nonterminal String titulo,ccss,cjs;
-nonterminal String cuerpo,lcompcuerpo,compcuerpo;       
+nonterminal NodoArbol inicio;
+nonterminal NodoArbol encabezado,lcompencabezado,compencabezado;
+nonterminal NodoArbol titulo,ccss,cjs;
+nonterminal NodoArbol cuerpo,lcompcuerpo,compcuerpo;       
 
-nonterminal String ruta,click;
+nonterminal NodoArbol ruta,click;
 
-nonterminal String  lopciones , opciones, id, grupo, ancho , alto ,alineado,fondo;
+nonterminal NodoArbol lopciones , opciones, id, grupo, ancho , alto ,alineado,fondo;
 
-nonterminal String panel,texto,imagen,boton,enlace;
+nonterminal NodoArbol panel,texto,imagen,boton,enlace;
 
-nonterminal String tabla,celdas,celda,lct,ct,cuerpotabla,lcuerpotabla;
+nonterminal NodoArbol tabla,celdas,celda,lct,ct,cuerpotabla,lcuerpotabla;
 
-nonterminal String textoa,cajatexto;
+nonterminal NodoArbol textoa,cajatexto;
 
-nonterminal String caja,lopcion,opcion,valor;
+nonterminal NodoArbol caja,lopcion,opcion,valor;
 
-nonterminal  String spinner,saltofin;
+nonterminal NodoArbol spinner,saltofin;
 
 
 start with inicio;
 
-inicio  ::= ABRIR CHTML CERRAR encabezado cuerpo ABRIR FINCHTML CERRAR 
+inicio  ::= ABRIR CHTML CERRAR encabezado:en cuerpo:cu ABRIR FINCHTML CERRAR 
         {:
             System.out.println("Gramatica corecta");
+            padre=CrearHoja(ConstantesCHTML.inicio,"");
+            padre=AddHijo(padre,en);
+            padre=AddHijo(padre,cu);
+            raiz=padre;
+            RESULT=raiz;
+
         :}
         |ABRIR CHTML CERRAR  ABRIR FINCHTML CERRAR
         {:
             System.out.println("Gramatica corecta");
+            padre=CrearHoja(ConstantesCHTML.inicio,"");
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.encabezado,""));
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.cuerpo,""));
+            raiz=padre;
+            RESULT=raiz;
         :};
 
-encabezado ::= ABRIR ENCABEZADO CERRAR lcompencabezado ABRIR FINENCABEZADO CERRAR
-            |ABRIR ENCABEZADO CERRAR ABRIR FINENCABEZADO CERRAR;
+encabezado ::= ABRIR ENCABEZADO CERRAR lcompencabezado:en ABRIR FINENCABEZADO CERRAR
+            {:
+                RESULT=en;
+            :}
+            |ABRIR ENCABEZADO CERRAR ABRIR FINENCABEZADO CERRAR
+            {:
+               RESULT=CrearHoja(ConstantesCHTML.encabezado,"");
+            :};
 
-lcompencabezado ::= lcompencabezado compencabezado
-                | compencabezado
-                | error ABRIR{:RESULT=CrearHoja(ConstantesCHTML.error,"");:};
+lcompencabezado ::= lcompencabezado:lc compencabezado:nodo
+                {:
+                    lc=AddHijo(lc,nodo);
+                    RESULT=lc;
+                :}
+                | compencabezado:nodo
+                {:
+                    padre=CrearHoja(ConstantesCHTML.encabezado,"");
+                    padre=AddHijo(padre,nodo);
+                    RESULT=padre;
+                :};
+                
 
 compencabezado  ::= titulo:nodo{:RESULT=nodo;:}
                 |ccss:nodo{:RESULT=nodo;:}
-                |cjs:nodo{:RESULT=nodo;:};
+                |cjs:nodo{:RESULT=nodo;:}
+                |error ABRIR{:RESULT=CrearHoja(ConstantesCHTML.error,"");:};
 
 titulo     ::= ABRIR TITULO CERRAR ETEXTO:text ABRIR FINTITULO CERRAR
            {:
@@ -242,45 +269,196 @@ panel       ::= ABRIR PANEL lopciones:op CERRAR lcompcuerpo:cuerpo ABRIR FINPANE
                 RESULT=padre;
             :};
 
-texto       ::= ABRIR TEXTO lopciones CERRAR ETEXTO ABRIR FINTEXTO CERRAR
-            |ABRIR TEXTO CERRAR ETEXTO ABRIR FINTEXTO CERRAR
-            |ABRIR TEXTO lopciones CERRAR  ABRIR FINTEXTO CERRAR
-            |ABRIR TEXTO CERRAR  ABRIR FINTEXTO CERRAR;
+texto       ::= ABRIR TEXTO lopciones:op CERRAR ETEXTO:text ABRIR FINTEXTO CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.texto,text);
+                padre=AddHijo(padre,op);
+                RESULT=padre;
 
-imagen      ::= ABRIR IMAGEN CERRAR ETEXTO ABRIR FINIMAGEN CERRAR
-            |ABRIR IMAGEN lopciones CERRAR ETEXTO ABRIR FINIMAGEN CERRAR
+            :}
+            |ABRIR TEXTO CERRAR ETEXTO:text ABRIR FINTEXTO CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.texto,text);
+                izq=CrearHoja(ConstantesCHTML.opciones,"");
+                padre=AddHijo(padre,izq);
+                RESULT=padre;
+            :}
+            |ABRIR TEXTO lopciones:op CERRAR  ABRIR FINTEXTO CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.texto,"");
+                padre=AddHijo(padre,op);
+                RESULT=padre;
+            :}
+            |ABRIR TEXTO CERRAR  ABRIR FINTEXTO CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.texto,"");
+                izq=CrearHoja(ConstantesCHTML.opciones,"");
+                padre=AddHijo(padre,izq);
+                RESULT=padre;
+
+            :};
+
+imagen      ::= ABRIR IMAGEN CERRAR ETEXTO:text ABRIR FINIMAGEN CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.imagen,text);
+                izq=CrearHoja(ConstantesCHTML.opciones,"");
+                padre=AddHijo(padre,izq);
+                RESULT=padre;
+            :}
+            |ABRIR IMAGEN lopciones:op CERRAR ETEXTO:text ABRIR FINIMAGEN CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.imagen,text);
+                padre=AddHijo(padre,op);
+                RESULT=padre;
+            :}
             |ABRIR IMAGEN CERRAR  ABRIR FINIMAGEN CERRAR
-            |ABRIR IMAGEN lopciones CERRAR  ABRIR FINIMAGEN CERRAR;   
+            {:
+                padre=CrearHoja(ConstantesCHTML.imagen,"");
+                izq=CrearHoja(ConstantesCHTML.opciones,"");
+                padre=AddHijo(padre,izq);
+                RESULT=padre;
+            :}
+            |ABRIR IMAGEN lopciones:op CERRAR  ABRIR FINIMAGEN CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.imagen,"");
+                padre=AddHijo(padre,op);
+                RESULT=padre;
+            :};   
 
-boton       ::= ABRIR BOTON lopciones CERRAR ETEXTO ABRIR FINBOTON CERRAR
-            | ABRIR BOTON CERRAR ETEXTO ABRIR FINBOTON CERRAR
+boton       ::= ABRIR BOTON lopciones:op CERRAR ETEXTO:text ABRIR FINBOTON CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.boton,text);
+                padre=AddHijo(padre,op);
+                RESULT=padre;
+
+            :}
+            | ABRIR BOTON CERRAR ETEXTO:text ABRIR FINBOTON CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.boton,text);
+                izq=CrearHoja(ConstantesCHTML.opciones,"");
+                padre=AddHijo(padre,izq);
+                RESULT=padre;
+            :}
             | ABRIR BOTON CERRAR ABRIR FINBOTON CERRAR
-            | ABRIR BOTON lopciones CERRAR ABRIR FINBOTON CERRAR;
+            {:
+                padre=CrearHoja(ConstantesCHTML.boton,"");
+                izq=CrearHoja(ConstantesCHTML.opciones,"");
+                padre=AddHijo(padre,izq);
+                RESULT=padre;
+            :}
+            | ABRIR BOTON lopciones:op CERRAR ABRIR FINBOTON CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.boton,"");
+                padre=AddHijo(padre,op);
+                RESULT=padre;
+            :};
 
-enlace      ::= ABRIR ENLACE lopciones CERRAR ETEXTO ABRIR FINENLACE CERRAR
-            |ABRIR ENLACE CERRAR ETEXTO ABRIR FINENLACE CERRAR
+enlace      ::= ABRIR ENLACE lopciones:op CERRAR ETEXTO:text ABRIR FINENLACE CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.enlace,text);
+                padre=AddHijo(padre,op);
+                RESULT=padre;
+            :}
+            |ABRIR ENLACE CERRAR ETEXTO:text ABRIR FINENLACE CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.enlace,text);
+                izq=CrearHoja(ConstantesCHTML.opciones,"");
+                padre=AddHijo(padre,izq);
+                RESULT=padre;
+            :}
             |ABRIR ENLACE CERRAR  ABRIR FINENLACE CERRAR
-            |ABRIR ENLACE lopciones CERRAR ABRIR FINENLACE CERRAR;
+            {:
+                padre=CrearHoja(ConstantesCHTML.enlace,"");
+                izq=CrearHoja(ConstantesCHTML.opciones,"");
+                padre=AddHijo(padre,izq);
+                RESULT=padre;
+            :}
+            |ABRIR ENLACE lopciones:op CERRAR ABRIR FINENLACE CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.enlace,"");
+                padre=AddHijo(padre,op);
+                RESULT=padre;
+            :};
 
-tabla       ::= ABRIR TABLA lopciones CERRAR celdas ABRIR FINTABLA CERRAR
-            |ABRIR TABLA CERRAR celdas ABRIR FINTABLA CERRAR;
+tabla       ::= ABRIR TABLA lopciones:lop CERRAR celdas:c ABRIR FINTABLA CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.tabla,"");
+                padre=AddHijo(padre,lop);
+                padre=AddHijo(padre,c);
+                RESULT=padre;
+            :}
+            |ABRIR TABLA CERRAR celdas:c ABRIR FINTABLA CERRAR
+            {:
+                padre=CrearHoja(ConstantesCHTML.tabla,"");
+                padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+                padre=AddHijo(padre,c);
+                RESULT=padre;
+            :};
 
-celdas  ::= celdas celda
-        | celda;   
+celdas  ::= celdas:ce celda:c
+        {:
+            ce=AddHijo(ce,c);
+            RESULT=ce;
+        :}
+        | celda:c
+        {:
+            padre=CrearHoja(ConstantesCHTML.celdas,"");
+            padre=AddHijo(padre,c);
+            RESULT=padre;
+        :};   
 
-celda ::= ABRIR FILT CERRAR lct ABRIR FINFILT CERRAR;
+celda ::= ABRIR FILT CERRAR lct:c ABRIR FINFILT CERRAR{:RESULT=c;:};
 
-lct ::= lct ct
-    |ct;
+lct ::= lct:lc ct:c
+    {:
+        lc=AddHijo(lc,c);
+        RESULT=lc;
+    :}
+    |ct:c
+    {:
+        padre=CrearHoja(ConstantesCHTML.celda,"");
+        padre=AddHijo(padre,c);
+        RESULT=padre;
 
-ct ::= ABRIR CT CERRAR lcuerpotabla ABRIR FINCT CERRAR
+    :};
+
+ct ::= ABRIR CT CERRAR lcuerpotabla:lc ABRIR FINCT CERRAR
+    {:
+        padre=CrearHoja(ConstantesCHTML.ct,"");
+        padre=AddHijo(padre,lc);
+        RESULT=padre;
+    :}
    | ABRIR CT CERRAR  ABRIR FINCT CERRAR
-   |ABRIR CB CERRAR lcuerpotabla ABRIR FINCB CERRAR
-   | ABRIR CB CERRAR ABRIR FINCB CERRAR;
+   {:
+        padre=CrearHoja(ConstantesCHTML.ct,"");
+        padre=AddHijo(padre,CrearHoja(ConstantesCHTML.cuerpotabla,""));
+        RESULT=padre;
+    :}
+   |ABRIR CB CERRAR lcuerpotabla:lc ABRIR FINCB CERRAR
+   {:
+        padre=CrearHoja(ConstantesCHTML.cb,"");
+        padre=AddHijo(padre,lc);
+        RESULT=padre;
+    :}
+   | ABRIR CB CERRAR ABRIR FINCB CERRAR
+   {:
+        padre=CrearHoja(ConstantesCHTML.cb,"");
+        padre=AddHijo(padre,CrearHoja(ConstantesCHTML.cuerpotabla,""));
+        RESULT=padre;
+   :};
 
 
-lcuerpotabla ::= lcuerpotabla cuerpotabla:nodo
-            |cuerpotabla:nodo;
+lcuerpotabla ::= lcuerpotabla:lc cuerpotabla:nodo
+            {:
+                lc=AddHijo(lc,nodo);
+                RESULT=lc;
+            :}
+            |cuerpotabla:nodo
+            {:
+                padre=CrearHoja(ConstantesCHTML.cuerpotabla,"");
+                padre=AddHijo(padre,nodo);
+                RESULT=padre;
+            :};
 
 cuerpotabla ::= texto:nodo{:RESULT=nodo;:}
             |textoa:nodo{:RESULT=nodo;:}
@@ -290,50 +468,161 @@ cuerpotabla ::= texto:nodo{:RESULT=nodo;:}
             |ETEXTO
             |error ABRIR{:RESULT=CrearHoja(ConstantesCHTML.error,"");:};
 
-textoa ::= ABRIR TEXTOA lopciones CERRAR ETEXTO ABRIR FINTEXTOA CERRAR
-       |ABRIR TEXTOA CERRAR ETEXTO ABRIR FINTEXTOA CERRAR
-       |ABRIR TEXTOA lopciones CERRAR  ABRIR FINTEXTOA CERRAR
-       |ABRIR TEXTOA CERRAR  ABRIR FINTEXTOA CERRAR;
-
-cajatexto ::= ABRIR CAJATEXTO lopciones CERRAR ETEXTO ABRIR FINCAJATEXTO CERRAR
-       |ABRIR CAJATEXTO CERRAR ETEXTO ABRIR FINCAJATEXTO CERRAR
-       |ABRIR CAJATEXTO lopciones CERRAR  ABRIR FINCAJATEXTO CERRAR
-       |ABRIR CAJATEXTO CERRAR  ABRIR FINCAJATEXTO CERRAR;
-
-caja ::= ABRIR CAJA lopciones CERRAR lopcion ABRIR FINCAJA CERRAR
-     | ABRIR CAJA CERRAR lopcion ABRIR FINCAJA CERRAR
-     | ABRIR CAJA lopciones  CERRAR  ABRIR FINCAJA CERRAR
-     | ABRIR CAJA  CERRAR  ABRIR FINCAJA CERRAR;
-
-lopcion ::= lopcion opcion
-        |opcion;
-
-opcion  ::= ABRIR OPCION valor CERRAR ETEXTO ABRIR FINOPCION CERRAR
-        | ABRIR OPCION valor CERRAR  ABRIR FINOPCION CERRAR
-        | ABRIR OPCION CERRAR ETEXTO ABRIR FINOPCION CERRAR
-        | ABRIR OPCION CERRAR  ABRIR FINOPCION CERRAR;
-
-valor  ::= VALOR IGUAL ECADENA PUNTOCOMA;
-
-spinner ::= ABRIR SPINNER lopciones CERRAR ETEXTO:text ABRIR FINSPINNER CERRAR
+textoa ::= ABRIR TEXTOA lopciones:lop CERRAR ETEXTO:text ABRIR FINTEXTOA CERRAR
         {:
+            padre=CrearHoja(ConstantesCHTML.textoa,text);
+            padre=AddHijo(padre,lop);
+            RESULT=padre;
+        :}
+       |ABRIR TEXTOA CERRAR ETEXTO:text ABRIR FINTEXTOA CERRAR
+       {:
+            padre=CrearHoja(ConstantesCHTML.textoa,text);
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+            RESULT=padre;
+        :}
+       |ABRIR TEXTOA lopciones:lop CERRAR  ABRIR FINTEXTOA CERRAR
+       {:
+            padre=CrearHoja(ConstantesCHTML.textoa,"");
+            padre=AddHijo(padre,lop);
+            RESULT=padre;
+       :}
+       |ABRIR TEXTOA CERRAR  ABRIR FINTEXTOA CERRAR
+       {:
+            padre=CrearHoja(ConstantesCHTML.textoa,"");
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+            RESULT=padre;
+        :};
 
+cajatexto ::= ABRIR CAJATEXTO lopciones:lop CERRAR ETEXTO:text ABRIR FINCAJATEXTO CERRAR
+        {:
+            padre=CrearHoja(ConstantesCHTML.cajatexto,text);
+            padre=AddHijo(padre,lop);
+            RESULT=padre;
+        :}
+       |ABRIR CAJATEXTO CERRAR ETEXTO:text ABRIR FINCAJATEXTO CERRAR
+       {:
+            padre=CrearHoja(ConstantesCHTML.cajatexto,text);
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+            RESULT=padre;
+        :}
+       |ABRIR CAJATEXTO lopciones:lop CERRAR  ABRIR FINCAJATEXTO CERRAR
+       {:
+            padre=CrearHoja(ConstantesCHTML.cajatexto,"");
+            padre=AddHijo(padre,lop);
+            RESULT=padre;
+      :}
+       |ABRIR CAJATEXTO CERRAR  ABRIR FINCAJATEXTO CERRAR
+       {:
+            padre=CrearHoja(ConstantesCHTML.cajatexto,"");
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+            RESULT=padre;
+       :};
+
+caja ::= ABRIR CAJA lopciones:op CERRAR lopcion:lop ABRIR FINCAJA CERRAR
+     {:
+        padre=CrearHoja(ConstantesCHTML.caja,"");
+        padre=AddHijo(padre,op);
+        padre=AddHijo(padre,lop);
+        RESULT=padre;
+
+     :}
+     | ABRIR CAJA CERRAR lopcion:lop ABRIR FINCAJA CERRAR
+     {:
+        padre=CrearHoja(ConstantesCHTML.caja,"");
+        padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+        padre=AddHijo(padre,lop);
+        RESULT=padre;
+     :}
+     | ABRIR CAJA lopciones:op  CERRAR  ABRIR FINCAJA CERRAR
+     {:
+        padre=CrearHoja(ConstantesCHTML.caja,"");
+        padre=AddHijo(padre,op);
+        padre=AddHijo(padre,CrearHoja(ConstantesCHTML.lopcion,""));
+        RESULT=padre;
+    :}
+     | ABRIR CAJA  CERRAR  ABRIR FINCAJA CERRAR
+     {:
+        padre=CrearHoja(ConstantesCHTML.caja,"");
+        padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+        padre=AddHijo(padre,CrearHoja(ConstantesCHTML.lopcion,""));
+        RESULT=padre;
+     :};
+
+lopcion ::= lopcion:lop opcion:op
+        {:
+            lop=AddHijo(lop,op);
+            RESULT=lop;
+        :}
+        |opcion:op
+        {:
+            padre=CrearHoja(ConstantesCHTML.lopcion,"");
+            padre=AddHijo(padre,op);
+            RESULT=op;
+        :};
+
+opcion  ::= ABRIR OPCION lopciones:lop CERRAR ETEXTO:text ABRIR FINOPCION CERRAR
+        {:
+            padre=CrearHoja(ConstantesCHTML.opcion,text);
+            padre=AddHijo(padre,lop);
+            RESULT=padre;
+        :}
+        | ABRIR OPCION lopciones:lop CERRAR  ABRIR FINOPCION CERRAR
+        {:
+            padre=CrearHoja(ConstantesCHTML.opcion,"");
+            padre=AddHijo(padre,lop);
+            RESULT=padre;
+        :}
+        | ABRIR OPCION CERRAR ETEXTO:text ABRIR FINOPCION CERRAR
+        {:
+            padre=CrearHoja(ConstantesCHTML.opcion,text);
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+            RESULT=padre;
+        :}
+        | ABRIR OPCION CERRAR  ABRIR FINOPCION CERRAR
+        {:
+            padre=CrearHoja(ConstantesCHTML.opcion,"");
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+            RESULT=padre;
+        :};
+
+
+spinner ::= ABRIR SPINNER lopciones:lop CERRAR ETEXTO:text ABRIR FINSPINNER CERRAR
+        {:
+            padre=CrearHoja(ConstantesCHTML.spinner,text);
+            padre=AddHijo(padre,lop);
+            RESULT=padre;
         :} 
         | ABRIR SPINNER CERRAR ETEXTO:text ABRIR FINSPINNER CERRAR
         {:
-
+            padre=CrearHoja(ConstantesCHTML.spinner,text);
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+            RESULT=padre;
         :}
-        | ABRIR SPINNER lopciones CERRAR  ABRIR FINSPINNER CERRAR
+        | ABRIR SPINNER lopciones:lop CERRAR  ABRIR FINSPINNER CERRAR
         {:
-
+            padre=CrearHoja(ConstantesCHTML.spinner,"0");
+            padre=AddHijo(padre,lop);
+            RESULT=padre;
         :}
         | ABRIR SPINNER  CERRAR  ABRIR FINSPINNER CERRAR
         {:
-
+            padre=CrearHoja(ConstantesCHTML.spinner,"0");
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+            RESULT=padre;
         :};
 
-saltofin ::= ABRIR SALTOFIN lopciones CERRAR 
-         |ABRIR SALTOFIN CERRAR;
+saltofin ::= ABRIR SALTOFIN lopciones:lop CERRAR
+         {:
+                padre=CrearHoja(ConstantesCHTML.saltofin,"");
+                padre=AddHijo(padre,lop);
+                RESULT=padre;
+        :} 
+         |ABRIR SALTOFIN CERRAR
+         {:
+            padre=CrearHoja(ConstantesCHTML.saltofin,"");
+            padre=AddHijo(padre,CrearHoja(ConstantesCHTML.opciones,""));
+            RESULT=padre;
+        :};
 
 ruta        ::= RUTA IGUAL ECADENA:cade PUNTOCOMA{:RESULT=CrearHoja( ConstantesCHTML.ruta,QuitarComillas(cade));:};
 
@@ -346,7 +635,7 @@ lopciones   ::= lopciones:lop opciones:op
             :}
             |opciones:op
             {:
-                padre=(ConstantesCHTML.opciones,"");
+                padre=CrearHoja(ConstantesCHTML.opciones,"");
                 padre=AddHijo(padre,op);
                 RESULT = padre;
             :};
@@ -359,6 +648,7 @@ opciones    ::= id:nodo{:RESULT=nodo;:}
             |click:nodo{:RESULT=nodo;:}
             |ruta:nodo{:RESULT=nodo;:}
             |fondo:nodo{:RESULT=nodo;:}
+            |valor:nodo{:RESULT=nodo;:}
             |error PUNTOCOMA{:RESULT=CrearHoja(ConstantesCHTML.error,"");:};
             
 
@@ -368,3 +658,4 @@ alto        ::= ALTO IGUAL ECADENA:cade PUNTOCOMA{:RESULT=CrearHoja( ConstantesC
 ancho       ::= ANCHO IGUAL ECADENA:cade PUNTOCOMA{:RESULT=CrearHoja( ConstantesCHTML.ancho,QuitarComillas(cade));:};
 alineado    ::= ALINEADO IGUAL ECADENA:cade PUNTOCOMA{:RESULT=CrearHoja( ConstantesCHTML.alineado,QuitarComillas(cade));:};
 fondo       ::= FONDO IGUAL ECADENA:cade PUNTOCOMA{:RESULT=CrearHoja( ConstantesCHTML.fondo,QuitarComillas(cade));:};
+valor       ::= VALOR IGUAL ECADENA:cade PUNTOCOMA{:RESULT=CrearHoja(ConstantesCHTML.valor,QuitarComillas(cade));:};

@@ -10,12 +10,15 @@ package Analizador.CHTML;
  * @author Hugo
  */
 public class ConstantesCHTML {
+    public static final String error="error";
     public static final String inicio="inicio";
     public static final String encabezado="encabezado";
     public static final String titulo="titulo";
     public static final String ccss="ccss";
     public static final String cjs="cjs";
     public static final String cuerpo ="cuerpo";
+    public static final String compcuerpo="compcuerpo";
+   // public static final String compencabezado="compencabezado";
     
     public static final String opciones ="opciones";
     public static final String ruta ="ruta";
@@ -32,6 +35,18 @@ public class ConstantesCHTML {
     public static final String imagen ="imagen";
     public static final String boton = "boton";
     public static final String enlace ="enlace";
+    public static final String valor ="valor";
+    
+    public static final String tabla="tabla";
+    public static final String celdas="celdas";
+    public static final String celda = "celda";
+    public static final String ct ="ct";
+    public static final String cb="cb";
+    public static final String cuerpotabla="cuerpotabla";
+    
+    public static final String caja="caja";
+    public static final String lopcion="lopcion";
+    public static final String opcion="opcion";
     
     public static final String textoa ="textoa";
     public static final String cajatexto ="cajatexto";
