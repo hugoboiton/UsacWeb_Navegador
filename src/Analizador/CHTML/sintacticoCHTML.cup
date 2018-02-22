@@ -34,7 +34,7 @@ parser code
 action code
 {:
     // acciones que podemos hacer en le codigo
-    NodoArbol raiz,izq,der,nodo;
+    NodoArbol raiz,padre,izq,der,nodo;
     private NodoArbol CrearHoja(String produccion,String valor,int linea,int colum)
     {
         NodoArbol nodo= new NodoArbol(produccion,valor,linea,colum);

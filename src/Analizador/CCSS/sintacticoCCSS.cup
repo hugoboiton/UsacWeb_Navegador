@@ -34,16 +34,23 @@ parser code
 action code
 {:
     // acciones que podemos hacer en le codigo
-    NodoArbol raiz,izq,der,nodo;
-    private NodoArbol CrearHoja(String produccion,String valor,int linea,int colum)
+    NodoArbol raiz;
+    NodoArbol padre,izq,der,nodo;
+    private NodoArbol CrearHoja(String produccion,String valor)
     {
-        NodoArbol nodo= new NodoArbol(produccion,valor,linea,colum);
+        NodoArbol nodo= new NodoArbol(produccion,valor,0,0);
         return nodo;
     }
     private NodoArbol AddHijo(NodoArbol raiz,NodoArbol hijo){
             raiz.add(hijo);
             return raiz;
-     }
+    }
+    private NodoArbol cambiarHijo(NodoArbol padre,NodoArbol hijos)
+    {
+        padre.hijos=hijos.hijos;
+        return padre;
+
+    }
 
 :}
 
@@ -61,117 +68,274 @@ MAS , MENOS , POR , DIVI,COMA;
 
 terminal String EVERDADERO , EFALSO , EID , ENUMERO , ECADENA;
 
-nonterminal String inicio,cuerpo,bloqueccss;
+nonterminal NodoArbol inicio,cuerpo,bloqueccss;
 
-nonterminal String  elemento,lelemento;
+nonterminal NodoArbol  elemento,lelemento;
 
-nonterminal String id ,grupo;
+nonterminal NodoArbol id ,grupo;
 
-nonterminal String lpropiedades ,propiedad;
+nonterminal NodoArbol lpropiedades ,propiedad;
 
-nonterminal String alineado, opalineado;
+nonterminal NodoArbol alineado, opalineado;
 
-nonterminal String texto;
+nonterminal NodoArbol texto;
 
-nonterminal String formato,lopfor, opfor;
+nonterminal NodoArbol formato,lopfor, opfor;
 
-nonterminal String letra,tamtex,fondoelemento;
+nonterminal NodoArbol letra,tamtex,fondoelemento;
 
-nonterminal String autoredi , op1,op2;
+nonterminal NodoArbol autoredi , op1,op2;
 
-nonterminal String visible,borde,opaque,colortext;
+nonterminal NodoArbol visible,borde,opaque,colortext;
 
-nonterminal String exp, val;
+nonterminal NodoArbol exp, val;
 
 precedence left MAS,MENOS;
 precedence left POR,DIVI;
 
 start with inicio;
 
-inicio ::= cuerpo
+inicio ::= cuerpo:cc
         {:
+            raiz=cc;
             System.out.println("Gramatica corecta");
         :};
 
 
-cuerpo ::= cuerpo bloqueccss
-	   | bloqueccss;
+cuerpo ::= cuerpo:cc bloqueccss:ee
+       {:
+            cc=AddHijo(cc,ee);
+            RESULT = cc;
+        :}
+	   | bloqueccss:ee
+       {:
+            padre =CrearHoja(ConstantesCSS.cuerpo,"");
+            padre=AddHijo(padre,ee);
+            RESULT = padre;
+        :};
 
-bloqueccss ::= EID CORCHEIZQ lelemento CORCHEDER;
+bloqueccss ::= EID:id CORCHEIZQ lelemento:ee CORCHEDER
+           {:
+                padre=CrearHoja(ConstantesCSS.elemento,id);
+                padre= cambiarHijo(padre,ee);
+                RESULT = padre;
+            :};
 
-lelemento ::= lelemento elemento
-		  |elemento;
+lelemento ::= lelemento:le elemento:ee
+          {:
+            le=AddHijo(le,ee);
+            RESULT = le;
+          :}  
+		  |elemento:ee
+          {:
+            padre =CrearHoja(ConstantesCSS.elemento,"");
+            padre = AddHijo(padre,ee);
+            RESULT = padre;
+          :};
 
-elemento ::=id 
-         |grupo ;   
+elemento ::= id:id
+         {:
+            RESULT=id;
+        :} 
+         |grupo:gr 
+         {:
+            RESULT=gr;
+        :} ;   
 
-id  	::= ID PARIZQ EID PARDER PUNTOCOMA lpropiedades;
+id  	::= ID PARIZQ EID:id PARDER PUNTOCOMA lpropiedades:lpro
+        {:
+           padre=CrearHoja(ConstantesCSS.id,id);
+           padre=cambiarHijo(padre,lpro);
+           RESULT = padre;
+        :};
 
-grupo   ::= GRUPO PARIZQ EID PARDER PUNTOCOMA lpropiedades;
+grupo   ::= GRUPO PARIZQ EID:id PARDER PUNTOCOMA lpropiedades:lpro
+        {:
+           padre=CrearHoja(ConstantesCSS.grupo,id);
+           padre=cambiarHijo(padre,lpro);
+           RESULT = padre;
 
-lpropiedades ::= lpropiedades propiedad
-             |propiedad; 
+        :};
 
-propiedad	 ::= alineado
-			 |texto
-			 |formato
-			 |letra
-			 |tamtex
-			 |fondoelemento
-			 |autoredi
-			 |visible
-			 |borde
-			 |opaque
-			 |colortext
-             |error PUNTOCOMA;
+lpropiedades ::= lpropiedades:p propiedad:dd
+             {:
+                p=AddHijo(p,dd);
+                RESULT =p;
+                
+             :}
+             |propiedad:dd
+             {:
+                padre = CrearHoja(ConstantesCSS.error,"");
+                padre =AddHijo(padre,dd);
+                RESULT =padre;
+             :}; 
+
+propiedad	 ::= alineado:nodo {:RESULT = nodo;:}
+			 |texto:nodo {:RESULT = nodo;:}
+			 |formato:nodo {:RESULT = nodo;:}
+			 |letra:nodo {:RESULT = nodo;:}
+			 |tamtex:nodo {:RESULT = nodo;:}
+			 |fondoelemento:nodo {:RESULT = nodo;:}
+			 |autoredi:nodo {:RESULT = nodo;:}
+			 |visible:nodo {:RESULT = nodo;:}
+			 |borde:nodo {:RESULT = nodo;:} 
+			 |opaque:nodo {:RESULT = nodo;:}
+			 |colortext:nodo {:RESULT = nodo;:}
+             |error PUNTOCOMA{:RESULT=CrearHoja(ConstantesCSS.error,"");:};
 
 alineado    ::= ALINEADO DOSPUNTOS IGUAL opalineado PUNTOCOMA;
 
-opalineado  ::= JUSTIFICADO
-			|CENTRADO
-			|DERECHA
-			|IZQUIERDA;
+opalineado  ::= JUSTIFICADO{:RESULT=CrearHoja(ConstantesCSS.JUSTIFICADO,ConstantesCSS.JUSTIFICADO);:}
+			|CENTRADO{:RESULT=CrearHoja(ConstantesCSS.CENTRADO,ConstantesCSS.CENTRADO);:}
+			|DERECHA{:RESULT=CrearHoja(ConstantesCSS.DERECHA,ConstantesCSS.DERECHA);:}
+			|IZQUIERDA{:RESULT=CrearHoja(ConstantesCSS.IZQUIERDA,ConstantesCSS.IZQUIERDA);:};
 
-texto    ::= TEXTO DOSPUNTOS IGUAL exp PUNTOCOMA;
+texto    ::= TEXTO DOSPUNTOS IGUAL exp:ex PUNTOCOMA
+        {:
+            padre = CrearHoja(ConstantesCSS.texto,"");
+            padre = AddHijo(padre,ex);
+            RESULT = padre;
+        :};
 
-formato  ::= FORMATO DOSPUNTOS IGUAL lopfor PUNTOCOMA;
+formato  ::= FORMATO DOSPUNTOS IGUAL lopfor:lop PUNTOCOMA
+         {:
+            padre = CrearHoja(ConstantesCSS.formato,"");
+            padre =AddHijo(padre,lop);
+            RESULT = padre;
+        :};
 
-lopfor	::= lopfor COMA opfor
-		|opfor;
+lopfor	::= lopfor:pa COMA opfor:hj
+        {:
+            padre = AddHijo(pa,hj);
+            RESULT = padre;
+        :}
+		|opfor:hj
+        {:
+            padre = CrearHoja(ConstantesCSS.lopfor,"");
+            padre = AddHijo(padre,hj);
+            RESULT = padre;
+        :};
 
-opfor	::= NEGRILLA
-		|CURSIVA
-		|MAYUSC
-		|MININ
-		|CAPITALT;
+opfor	::= NEGRILLA{:RESULT=CrearHoja(ConstantesCSS.NEGRILLA,ConstantesCSS.NEGRILLA);:}
+		|CURSIVA{:RESULT=CrearHoja(ConstantesCSS.CURSIVA,ConstantesCSS.CURSIVA);:}
+		|MAYUSC{:RESULT=CrearHoja(ConstantesCSS.MAYUSC,ConstantesCSS.MAYUSC);:}
+		|MININ{:RESULT=CrearHoja(ConstantesCSS.MININ,ConstantesCSS.MININ);:}
+		|CAPITALT{:RESULT=CrearHoja(ConstantesCSS.CAPITALT,ConstantesCSS.CAPITALT);:};
 
-letra   ::= LETRA DOSPUNTOS IGUAL exp PUNTOCOMA;
+letra   ::= LETRA DOSPUNTOS IGUAL exp:exp PUNTOCOMA
+        {:
+            padre = CrearHoja(ConstantesCSS.letra,"");
+            padre = AddHijo(padre,exp);
+            RESULT = padre;
+        :};
 
-tamtex  ::= TAMTEX DOSPUNTOS IGUAL exp PUNTOCOMA;
+tamtex  ::= TAMTEX DOSPUNTOS IGUAL exp:exp PUNTOCOMA
+        {:
+            padre = CrearHoja(ConstantesCSS.tamtex,"");
+            padre = AddHijo(padre,exp);
+            RESULT = padre;
+        :};
 
-fondoelemento ::= FONDOELEMTO DOSPUNTOS IGUAL exp PUNTOCOMA;
+fondoelemento ::= FONDOELEMTO DOSPUNTOS IGUAL exp:exp PUNTOCOMA
+            {:
+                padre= CrearHoja(ConstantesCSS.fondoelemento,"");
+                padre=AddHijo(padre,exp);
+                RESULT = padre;
+            :};
 
-autoredi  ::= AUTOREDIMEN DOSPUNTOS IGUAL CORCHEIZQ op1 COMA op2 CORCHEDER PUNTOCOMA;
+autoredi  ::= AUTOREDIMEN DOSPUNTOS IGUAL CORCHEIZQ op1:op1 COMA op2:op2 CORCHEDER PUNTOCOMA
+          {:
+                padre = CrearHoja(ConstantesCSS.autoredi,"");
+                padre = AddHijo(padre,op1);
+                padre = AddHijo(padre,op2);
+                RESULT = padre;
+          :};
 
 op1 ::= EVERDADERO
-	|EFALSO;
+    {:
+        RESULT=CrearHoja(ConstantesCSS.EVERDADERO,ConstantesCSS.EVERDADERO);
+    :}
+	|EFALSO
+    {:
+        RESULT=CrearHoja(ConstantesCSS.EFALSO,ConstantesCSS.EFALSO);
+    :};
+
  
 op2 ::= VERTICAL
-	|HORIZONTAL;
+    {:
+        RESULT=CrearHoja(ConstantesCSS.VERTICAL,ConstantesCSS.VERTICAL);
+    :}
+	|HORIZONTAL
+    {:
+       RESULT=CrearHoja(ConstantesCSS.HORIZONTAL,ConstantesCSS.HORIZONTAL); 
+    :};
 
-visible ::= VISIBLE DOSPUNTOS IGUAL op1 PUNTOCOMA;
 
-borde   ::= BORDE DOSPUNTOS IGUAL CORCHEIZQ exp COMA exp COMA op1 CORCHEDER PUNTOCOMA; 		
+visible ::= VISIBLE DOSPUNTOS IGUAL op1:op PUNTOCOMA
+        {:
+            padre =CrearHoja(ConstantesCSS.visible,"");
+            padre = AddHijo(padre,op);
+            RESULT = padre;
+        :};
 
-opaque  ::= OPAQUE DOSPUNTOS IGUAL op1 PUNTOCOMA;
+borde   ::= BORDE DOSPUNTOS IGUAL CORCHEIZQ exp:ex COMA exp:ex1 COMA op1:op CORCHEDER PUNTOCOMA
+        {:
+            padre = CrearHoja(ConstantesCSS.borde,"");
+            padre = AddHijo(padre,ex);
+            padre = AddHijo(padre,ex1);
+            padre = AddHijo(padre,op);
+            RESULT=padre;
+        :};		
 
-colortext ::= COLORTEXT DOSPUNTOS IGUAL exp PUNTOCOMA;	
+opaque  ::= OPAQUE DOSPUNTOS IGUAL op1:op PUNTOCOMA
+        {:
+            padre=CrearHoja(ConstantesCSS.opaque,"");
+            padre=AddHijo(padre,op);
+            RESULT=padre;    
+        :};
 
-exp ::= exp MAS exp
-	|exp MENOS exp
-	|exp POR exp
-	|exp DIVI exp
-	|val;
+colortext ::= COLORTEXT DOSPUNTOS IGUAL exp:exp PUNTOCOMA 
+        {:
+            padre=CrearHoja(ConstantesCSS.colortext,"");
+            padre=AddHijo(padre,exp);
+            RESULT =padre;
+        :};	
 
-val ::= ENUMERO
-    |ECADENA;
+exp ::= exp:iz MAS exp:dr 
+    {:
+        padre=CrearHoja(ConstantesCSS.exp,"");
+        padre=AddHijo(padre,iz);
+        padre=AddHijo(padre,CrearHoja(ConstantesCSS.MAS,"1"));
+        padre=AddHijo(padre,dr);
+        RESULT = padre;
+    :}
+	|exp:iz MENOS exp:dr 
+    {:
+        padre=CrearHoja(ConstantesCSS.exp,"");
+        padre=AddHijo(padre,iz);
+        padre=AddHijo(padre,CrearHoja(ConstantesCSS.MENOS,"2"));
+        padre=AddHijo(padre,dr);
+        RESULT =padre;
+    :}
+	|exp:iz POR exp:dr 
+    {:
+        padre=CrearHoja(ConstantesCSS.exp,"");
+        padre=AddHijo(padre,iz);
+        padre=AddHijo(padre,CrearHoja(ConstantesCSS.POR,"3"));
+        padre=AddHijo(padre,dr);
+        RESULT = padre;
+    :}
+	|exp:iz DIVI exp:dr 
+    {:
+        padre=CrearHoja(ConstantesCSS.exp,"");
+        padre=AddHijo(padre,iz);
+        padre=AddHijo(padre,CrearHoja(ConstantesCSS.DIVI,"4"));
+        padre=AddHijo(padre,dr);
+        RESULT = padre;
+    :}
+	|val:va
+    {:RESULT=va;:};
+
+val ::= ENUMERO:EN{:RESULT=CrearHoja(ConstantesCSS.ENUMERO,EN);:}
+    |ECADENA:EC{:RESULT=CrearHoja(ConstantesCSS.ECADENA,EC);:};
+
