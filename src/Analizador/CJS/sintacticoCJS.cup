@@ -32,16 +32,27 @@ parser code
 action code
 {:
     // acciones que podemos hacer en le codigo
-    NodoArbol raiz,izq,der,nodo;
-    private NodoArbol CrearHoja(String produccion,String valor,int linea,int colum)
+    NodoArbol raiz;
+    NodoArbol padre,izq,der,nodo;
+    private NodoArbol CrearHoja(String produccion,String valor)
     {
-        NodoArbol nodo= new NodoArbol(produccion,valor,linea,colum);
+        NodoArbol nodo= new NodoArbol(produccion,valor,0,0);
         return nodo;
     }
     private NodoArbol AddHijo(NodoArbol raiz,NodoArbol hijo){
             raiz.add(hijo);
             return raiz;
      }
+    private String QuitarComillas(String cadena)
+    {
+        cadena=cadena.replace('\"', ' ');
+        return cadena.trim();
+    }
+    private String QuitarComillasimple(String cadena)
+    {
+        cadena=cadena.replace('\'', ' ');
+        return cadena.trim();
+    }
 
 :}
 
@@ -67,42 +78,44 @@ PARIZQ , PARDER , LLAVEIZQ , LLAVEDER , PUNTO , EVERDARERO , EFALSO;
 
 terminal String EID , ENUMERO , ECADENA ,EDATE , EDATETIME;   
 
-nonterminal String inicio,lcuerpo,cuerpo;
+nonterminal NodoArbol inicio,lcuerpo,cuerpo;
 
-nonterminal String declararvar,asignarvar;
+nonterminal NodoArbol declararvar,asignarvar;
 
-nonterminal String declararvec,asignarvec,lvalores;
-nonterminal String funcionesVector;
+nonterminal NodoArbol declararvec,asignarvec,valores;
+nonterminal NodoArbol funcionesVector;
 
-nonterminal String si;
+nonterminal NodoArbol si;
 
-nonterminal String seleccionar ,lcaso ,caso ,defecto;
+nonterminal NodoArbol seleccionar ,lcaso ,caso ,defecto;
 
-nonterminal String para,para0,para1;
+nonterminal NodoArbol para,para0,para1;
 
-nonterminal String mientras;
+nonterminal NodoArbol mientras;
 
-nonterminal String detener;
+nonterminal NodoArbol detener;
 
-nonterminal String imprimir;
+nonterminal NodoArbol imprimir;
 
-nonterminal String mensaje;
+nonterminal NodoArbol mensaje;
 
-nonterminal String retorno;
+nonterminal NodoArbol retorno;
 
-nonterminal String llamdaFunciones;
+nonterminal NodoArbol llamdaFunciones;
 
-nonterminal String funciones ,lparametros;
+nonterminal NodoArbol funciones ,parametros;
 
-nonterminal String lsen,sent;
+nonterminal NodoArbol lsen,sent;
 
-nonterminal String logica ,relacional,op,exp,valor;
+nonterminal NodoArbol logica ,relacional,op,exp,valor;
 
-nonterminal String eventos , listaEventos,evento;
+nonterminal NodoArbol documento ,evento;
 
-nonterminal String obtener,observador,obs0,setelem;
+nonterminal NodoArbol obtener,observador,obs0,setelem;
 
-nonterminal String valorchtml;
+nonterminal NodoArbol valorchtml;
+
+
 
 precedence left OR;
 precedence left AND;
@@ -117,159 +130,485 @@ precedence nonassoc PARIZQ,PARDER;
 
 start with inicio;
 
-inicio  ::= lcuerpo 
+inicio  ::= lcuerpo:c
         {:
             System.out.println("Gramatica corecta");
+            raiz=c;
+            RESULT=raiz;
         :};
 
-lcuerpo  ::= lcuerpo cuerpo
-         |cuerpo;
+lcuerpo  ::= lcuerpo:l cuerpo:c
+         {:
+            l=AddHijo(l,c);
+            RESULT=l;            
+          :}
+         |cuerpo:c
+         {:
+            padre=CrearHoja(ConstantesCJS.cuerpo,"");
+            padre=AddHijo(padre,c);
+            RESULT=padre;
+          :};
 
-cuerpo   ::=  declararvar PUNTOCOMA
-         |declararvec
-         |llamdaFunciones PUNTOCOMA
-         |funciones
-         |imprimir
-         |mensaje
-         |valorchtml PUNTOCOMA
-         |eventos PUNTOCOMA;
-
-
-funciones ::= FUNCION EID PARIZQ  PARDER LLAVEIZQ lsen LLAVEDER
-          |FUNCION EID PARIZQ lparametros PARDER LLAVEIZQ lsen LLAVEDER;
-
-lparametros ::= lparametros COMA EID
-        |EID; 
-
-declararvar ::= DIMV EID  DOSPUNTOS logica 
-           |DIMV EID ;
-asignarvar ::= EID DOSPUNTOS logica;
-
-declararvec ::= DIMV EID LLAVEIZQ logica LLAVEDER PUNTOCOMA
-            |DIMV EID DOSPUNTOS LLAVEIZQ lvalores LLAVEDER PUNTOCOMA
-            |DIMV EID LLAVEIZQ logica LLAVEDER DOSPUNTOS LLAVEIZQ lvalores LLAVEDER PUNTOCOMA;
-
-lvalores   ::= lvalores COMA logica
-           |logica;
-
-asignarvec ::= EID LLAVEIZQ logica LLAVEDER DOSPUNTOS logica PUNTOCOMA
-           |EID DOSPUNTOS LLAVEIZQ lvalores LLAVEDER PUNTOCOMA;
+cuerpo   ::=  declararvar:nodo PUNTOCOMA{:RESULT=nodo;:}
+         |asignarvar:nodo PUNTOCOMA{:RESULT=nodo;:}
+         |declararvec:nodo{:RESULT=nodo;:}
+         |asignarvec:nodo{:RESULT=nodo;:}
+         |llamdaFunciones:nodo PUNTOCOMA{:RESULT=nodo;:}
+         |funciones:nodo{:RESULT=nodo;:}
+         |imprimir:nodo{:RESULT=nodo;:}
+         |mensaje:nodo{:RESULT=nodo;:}
+         |documento:nodo PUNTOCOMA{:RESULT=nodo;:}
+         |valorchtml:nodo{:RESULT = nodo;:}
+         |error PUNTOCOMA{:RESULT=CrearHoja(ConstantesCJS.error,"");:};
 
 
-funcionesVector ::= EID PUNTO CONTEO
-                |EID PUNTO ATEXTO PARIZQ PARDER
-                |EID LLAVEIZQ logica LLAVEDER;
+funciones ::= FUNCION EID:text PARIZQ  PARDER LLAVEIZQ lsen:sen LLAVEDER
+          {:
+            padre=CrearHoja(ConstantesCJS.funcion,text);
+            padre=AddHijo(padre,CrearHoja(ConstantesCJS.parametros,""));
+            padre=AddHijo(padre,sen);
+            RESULT=padre;
 
-lsen    ::= lsen sent
-        |sent;
+          :}
+          |FUNCION EID:text PARIZQ parametros:pa PARDER LLAVEIZQ lsen:sen LLAVEDER 
+          {:
+            padre=CrearHoja(ConstantesCJS.funcion,text);
+            padre=AddHijo(padre,pa);
+            padre=AddHijo(padre,sen);
+            RESULT=padre;
 
-sent     ::= declararvar PUNTOCOMA
-        |asignarvar PUNTOCOMA
-        |declararvec
-        |asignarvec
-        |si
-        |seleccionar
-        |para
-        |mientras
-        |detener
-        |imprimir
-        |mensaje
-        |retorno
-        |llamdaFunciones PUNTOCOMA
-        |eventos PUNTOCOMA
-        |valorchtml PUNTOCOMA
-        |error PUNTOCOMA;
+          :};
 
-si      ::= SI PARIZQ logica PARDER LLAVEIZQ lsen LLAVEDER
-        |SI PARIZQ logica PARDER LLAVEIZQ lsen LLAVEDER SINO LLAVEIZQ lsen LLAVEDER;
-
-seleccionar ::= SELECCIONA PARIZQ logica PARDER LLAVEIZQ lcaso LLAVEDER  
-            |SELECCIONA PARIZQ logica PARDER LLAVEIZQ lcaso defecto LLAVEDER;
-
-lcaso       ::= lcaso caso
-            |caso;
-
-caso  ::= CASO logica DOSPUNTOS lsen;
-
-defecto ::= DEFECTO DOSPUNTOS lsen;
-
-para   ::= PARA PARIZQ para0 PUNTOCOMA logica PUNTOCOMA para1 PARDER LLAVEIZQ lsen LLAVEDER;
-
-para0 ::= declararvar
-        |asignarvar;
-
-para1 ::= AUMENTO
-      |DECREMENTO;
-
-mientras ::= MIENTRAS PARIZQ logica PARDER LLAVEIZQ lsen LLAVEDER;
-
-detener  ::= DETENER PUNTOCOMA;
-
-retorno  ::= RETORNAR logica PUNTOCOMA;
-
-imprimir  ::= IMPRIMIR PARIZQ logica PARDER PUNTOCOMA;
-
-mensaje  ::= MENSAJE PARIZQ logica PARDER PUNTOCOMA;
-
-llamdaFunciones ::= EID PARIZQ PARDER
-                |EID PARIZQ lvalores PARDER;
-
-logica  ::= logica OR logica
-        |logica AND logica
-        |NOT logica
-        |PARIZQ logica PARDER
-        |relacional;
-
-relacional  ::= relacional op exp
-            |exp;
-
-op ::= IGUALIGUAL
-   |DIFERENTE
-   |MENOR
-   |MENORIGUAL
-   |MAYOR
-   |MAYOTIGUAL;
-
-exp ::= exp MAS exp
-    |exp MENOS exp
-    |exp POR exp
-    |exp DIVI exp
-    |exp MOD exp
-    |exp POT exp
-    |exp AUMENTO
-    |exp DECREMENTO
-    |PARIZQ exp PARDER
-    |valor;
-
-valor ::= EVERDARERO
-      |EFALSO 
-      |ECADENA
-      |ENUMERO
-      |EDATETIME
-      |EDATE
-      |EID
-      |funcionesVector
-      |llamdaFunciones
-      |eventos
-      |valorchtml;
+parametros ::= parametros:p COMA EID:eid
+        {:
+            p=AddHijo(p,CrearHoja(ConstantesCJS.eid,eid));
+            RESULT=p;
+        :}
+        |EID:eid
+        {:
+            padre=CrearHoja(ConstantesCJS.parametros,"");
+            padre=AddHijo(padre,CrearHoja(ConstantesCJS.eid,eid));
+            RESULT=padre;
+        :}; 
 
 
-eventos ::= DOCUMETO PUNTO listaEventos;
+declararvar ::= DIMV EID:eid  DOSPUNTOS logica:l
+            {:
+                padre=CrearHoja(ConstantesCJS.declararvar,"");
+                padre=AddHijo(padre,CrearHoja(ConstantesCJS.eid,eid));
+                padre=AddHijo(padre,l);
+                RESULT=padre;
+            :} 
+           |DIMV EID:eid 
+           {:
+              padre=CrearHoja(ConstantesCJS.declararvar,"");
+              padre=AddHijo(padre,CrearHoja(ConstantesCJS.eid,eid));
+              padre=AddHijo(padre,CrearHoja(ConstantesCJS.logica,""));
+              RESULT=padre;
+            :};
 
-listaEventos ::=listaEventos PUNTO evento
-             |evento;
 
-evento ::= obtener
-       |observador
-       |setelem;
+asignarvar ::= EID:eid DOSPUNTOS logica:l
+           {:
+              padre=CrearHoja(ConstantesCJS.asignarvar,"");
+              padre=AddHijo(padre,CrearHoja(ConstantesCJS.eid,eid));
+              padre=AddHijo(padre,l);
+              RESULT=padre;
+          :};
+          
 
-obtener ::= OBTENER PARIZQ logica PARDER;
+declararvec ::= DIMV EID:eid LLAVEIZQ logica:l LLAVEDER PUNTOCOMA
+            {:
+                padre=CrearHoja(ConstantesCJS.declararvec,"");
+                padre=AddHijo(padre,CrearHoja(ConstantesCJS.eid,eid));
+                padre=AddHijo(padre,l);
+                RESULT=padre;
+            :}
+            |DIMV EID:eid DOSPUNTOS LLAVEIZQ valores:v LLAVEDER PUNTOCOMA
+            {:
+                padre=CrearHoja(ConstantesCJS.declararvec,"");
+                padre=AddHijo(padre,CrearHoja(ConstantesCJS.eid,eid));
+                padre=AddHijo(padre,v);
+                RESULT=padre;  
 
-observador ::= OBSERVADOR PARIZQ logica COMA obs0 PARDER;
+            :}
+            |DIMV EID:eid LLAVEIZQ logica:l LLAVEDER DOSPUNTOS LLAVEIZQ valores:v LLAVEDER PUNTOCOMA
+            {:
+                padre=CrearHoja(ConstantesCJS.declararvec,"");
+                padre=AddHijo(padre,CrearHoja(ConstantesCJS.eid,eid));
+                padre=AddHijo(padre,l);
+                padre=AddHijo(padre,v);
+                RESULT=padre;
+            :};
 
-obs0 ::= llamdaFunciones
-     |funciones;
+valores   ::= valores:v COMA logica:l
+          {:
+              v=AddHijo(v,l);
+              RESULT=v;
+          :}
+           |logica:l
+           {:
+              padre=CrearHoja(ConstantesCJS.valores,"");
+              padre=AddHijo(padre,l);
+              RESULT=padre;
+            :};
 
-setelem ::=SETELEMENTO PARIZQ logica COMA logica PARDER;
+asignarvec ::= EID:eid LLAVEIZQ logica:l LLAVEDER DOSPUNTOS logica:l1 PUNTOCOMA
+            {:
+                padre=CrearHoja(ConstantesCJS.asignarvec,"");
+                padre=AddHijo(padre,CrearHoja(ConstantesCJS.eid,eid));
+                padre=AddHijo(padre,l);
+                padre=AddHijo(padre,l1);
+                RESULT=padre;
+            :}
+           |EID:eid DOSPUNTOS LLAVEIZQ valores:v LLAVEDER PUNTOCOMA
+           {:
+              padre=CrearHoja(ConstantesCJS.asignarvar,"");
+              padre=AddHijo(padre,CrearHoja(ConstantesCJS.eid,eid));
+              padre=AddHijo(padre,v);
+              RESULT=padre;
+            :};
 
-valorchtml  ::= EID PUNTO listaEventos;
+
+funcionesVector ::= EID:eid PUNTO CONTEO
+                {:
+                    RESULT=CrearHoja(ConstantesCJS.conteov,eid);
+                :}
+                |EID:eid PUNTO ATEXTO PARIZQ PARDER
+                {:
+                    RESULT=CrearHoja(ConstantesCJS.atextov,eid);
+                :}
+                |EID:eid LLAVEIZQ logica:l LLAVEDER
+                {:
+                    padre=CrearHoja(ConstantesCJS.valorvec,"");
+                    padre=AddHijo(padre,CrearHoja(ConstantesCJS.eid,eid));
+                    padre=AddHijo(padre,l);
+                    RESULT=padre;
+                :};
+
+lsen    ::= lsen:ls sent:s
+        {:
+            ls=AddHijo(ls,s);
+            RESULT=ls;
+        :}
+        |sent:nodo
+        {:
+          padre=CrearHoja(ConstantesCJS.sen,"");
+          padre=AddHijo(padre,nodo);
+          RESULT=padre;
+        :};
+
+sent     ::= declararvar:nodo PUNTOCOMA{:RESULT=nodo;:}
+        |asignarvar:nodo PUNTOCOMA{:RESULT=nodo;:}
+        |declararvec:nodo{:RESULT=nodo;:}
+        |asignarvec:nodo{:RESULT=nodo;:}
+        |si:nodo{:RESULT=nodo;:}
+        |seleccionar:nodo{:RESULT=nodo;:}
+        |para:nodo{:RESULT=nodo;:}
+        |mientras:nodo{:RESULT=nodo;:}
+        |detener:nodo{:RESULT=nodo;:}
+        |imprimir:nodo{:RESULT=nodo;:}
+        |mensaje:nodo{:RESULT=nodo;:}
+        |retorno:nodo{:RESULT=nodo;:}
+        |llamdaFunciones:nodo PUNTOCOMA{:RESULT=nodo;:}
+        |documento:nodo PUNTOCOMA{:RESULT=nodo;:}
+        |valorchtml:nodo{:RESULT = nodo;:}
+        |error PUNTOCOMA{:RESULT=CrearHoja(ConstantesCJS.error,"");:};
+
+si      ::= SI PARIZQ logica:l PARDER LLAVEIZQ lsen:s LLAVEDER
+        {:
+          padre=CrearHoja(ConstantesCJS.si,"");
+          padre=AddHijo(padre,l);
+          padre=AddHijo(padre,s);
+          RESULT=padre;
+        :}
+        |SI PARIZQ logica:l PARDER LLAVEIZQ lsen:s LLAVEDER SINO LLAVEIZQ lsen:s1 LLAVEDER
+        {:
+            padre=CrearHoja(ConstantesCJS.si,"");
+            padre=AddHijo(padre,l);
+            padre=AddHijo(padre,s);
+            padre=AddHijo(padre,s1);
+            RESULT=padre;
+        :};
+
+seleccionar ::= SELECCIONA PARIZQ logica:l PARDER LLAVEIZQ lcaso:lc LLAVEDER 
+            {:
+                padre=CrearHoja(ConstantesCJS.seleccionar,"");
+                padre=AddHijo(padre,l);
+                padre=AddHijo(padre,lc);
+                padre=AddHijo(padre,CrearHoja(ConstantesCJS.defecto,""));
+                RESULT=padre;
+            :} 
+            |SELECCIONA PARIZQ logica:l PARDER LLAVEIZQ lcaso:lc defecto:d LLAVEDER
+            {:
+                padre=CrearHoja(ConstantesCJS.seleccionar,"");
+                padre=AddHijo(padre,l);
+                padre=AddHijo(padre,lc);
+                padre=AddHijo(padre,d);
+                RESULT=padre;
+
+            :};
+
+lcaso       ::= lcaso:l caso:nodo
+            {:
+              l=AddHijo(l,nodo);
+              RESULT=l;
+            :}
+            |caso:nodo
+            {:
+              padre=CrearHoja(ConstantesCJS.lcaso,"");
+              padre=AddHijo(padre,nodo);
+              RESULT=padre;
+            :};
+
+caso  ::= CASO logica:l DOSPUNTOS lsen:s
+      {:
+        padre=CrearHoja(ConstantesCJS.caso,"");
+        padre=AddHijo(padre,l);
+        padre=AddHijo(padre,s);
+        RESULT=padre;
+
+      :};
+
+defecto ::= DEFECTO DOSPUNTOS lsen:ls
+        {:
+            padre=CrearHoja(ConstantesCJS.defecto,"");
+            padre=AddHijo(padre,ls);
+            RESULT=padre;
+        :};
+
+para   ::= PARA PARIZQ para0:pa PUNTOCOMA logica:lo PUNTOCOMA para1:p1 PARDER LLAVEIZQ lsen:ls LLAVEDER
+       {:
+          padre=CrearHoja(ConstantesCJS.para,"");
+          padre=AddHijo(padre,pa);
+          padre=AddHijo(padre,lo);
+          padre=AddHijo(padre,p1);
+          padre=AddHijo(padre,ls);
+          RESULT=padre;
+      :};
+
+para0 ::= declararvar:nodo{:RESULT=nodo;:}
+        |asignarvar:nodo{:RESULT=nodo;:};
+
+para1 ::= AUMENTO{:RESULT=CrearHoja(ConstantesCJS.aumentar,"7");:}
+      |DECREMENTO{:RESULT=CrearHoja(ConstantesCJS.decremento,"8");:};
+
+mientras ::= MIENTRAS PARIZQ logica:l PARDER LLAVEIZQ lsen:ls LLAVEDER
+         {:
+            padre=CrearHoja(ConstantesCJS.mientras,"");
+            padre=AddHijo(padre,l);
+            padre=AddHijo(padre,ls);
+            RESULT=padre;
+          :};
+
+detener  ::= DETENER PUNTOCOMA{:RESULT=CrearHoja(ConstantesCJS.detener,"");:};
+
+retorno  ::= RETORNAR logica:l PUNTOCOMA
+         {:
+            padre=CrearHoja(ConstantesCJS.retorno,"");
+            padre=AddHijo(padre,l);
+            RESULT=padre;
+          :};
+
+imprimir  ::= IMPRIMIR PARIZQ logica:l PARDER PUNTOCOMA
+          {:
+              padre=CrearHoja(ConstantesCJS.imprimir,"");
+              padre=AddHijo(padre,l);
+              RESULT=padre;
+          :};
+
+mensaje  ::= MENSAJE PARIZQ logica:l PARDER PUNTOCOMA
+         {:
+            padre=CrearHoja(ConstantesCJS.mensaje,"");
+            padre=AddHijo(padre,l);
+            RESULT=padre;
+          :};
+
+llamdaFunciones ::= EID:eid PARIZQ PARDER
+                {:
+                    padre=CrearHoja(ConstantesCJS.llamdafuncion,eid);
+                    padre=AddHijo(padre,CrearHoja(ConstantesCJS.valores,""));
+                    RESULT=padre;
+                :}
+                |EID:eid PARIZQ valores:v PARDER
+                {:
+                    padre=CrearHoja(ConstantesCJS.llamdafuncion,eid);
+                    padre=AddHijo(padre,v);
+                    RESULT=padre;
+                :};
+
+logica  ::= logica:l1 OR logica:l2
+        {:
+          padre=CrearHoja(ConstantesCJS.logica,"");
+          padre=AddHijo(padre,l2);
+          padre=AddHijo(padre,CrearHoja(ConstantesCJS.or,"1"));
+          padre=AddHijo(padre,l1); 
+          RESULT=padre;
+
+        :}
+        |logica:l1 AND logica:l2
+        {:
+          padre=CrearHoja(ConstantesCJS.logica,"");
+          padre=AddHijo(padre,l2);
+          padre=AddHijo(padre,CrearHoja(ConstantesCJS.and,"2"));
+          padre=AddHijo(padre,l1);
+          RESULT=padre;
+
+        :}
+        |NOT logica:l 
+        {:
+          padre=CrearHoja(ConstantesCJS.logica,"");
+          padre=AddHijo(padre,CrearHoja(ConstantesCJS.not,"3"));
+          padre=AddHijo(padre,l);
+          RESULT=padre;
+        :}
+        |PARIZQ logica:l PARDER{:RESULT=l;:}
+        |relacional:r {:RESULT=r;:};
+
+relacional  ::= relacional:r op:o exp:xp
+            {:
+                padre=CrearHoja(ConstantesCJS.relacional,"");
+                padre=AddHijo(padre,r);
+                padre=AddHijo(padre,o);
+                padre=AddHijo(padre,xp);
+                RESULT=padre;
+            :}
+            |exp:nodo{:RESULT=nodo;:};
+
+op ::= IGUALIGUAL{:RESULT=CrearHoja(ConstantesCJS.igualigual,"1");:}
+   |DIFERENTE {:RESULT=CrearHoja(ConstantesCJS.diferente,"2");:}
+   |MENOR     {:RESULT=CrearHoja(ConstantesCJS.menor,"3");:}
+   |MENORIGUAL{:RESULT=CrearHoja(ConstantesCJS.menorigual,"4");:}
+   |MAYOR     {:RESULT=CrearHoja(ConstantesCJS.mayor,"5");:}
+   |MAYOTIGUAL{:RESULT=CrearHoja(ConstantesCJS.mayorigual,"6");:};
+
+exp ::= exp:iz MAS exp:dr
+    {:
+      padre=CrearHoja(ConstantesCJS.exp,"");
+      padre=AddHijo(padre,iz);
+      padre=AddHijo(padre,CrearHoja(ConstantesCJS.mas,"1"));
+      padre=AddHijo(padre,dr);
+      RESULT=padre;
+    :}
+    |exp:iz MENOS exp:dr
+    {:
+      padre=CrearHoja(ConstantesCJS.exp,"");
+      padre=AddHijo(padre,iz);
+      padre=AddHijo(padre,CrearHoja(ConstantesCJS.menos,"2"));
+      padre=AddHijo(padre,dr);
+      RESULT=padre;
+    :}
+    |exp:iz POR exp:dr
+    {:
+      padre=CrearHoja(ConstantesCJS.exp,"");
+      padre=AddHijo(padre,iz);
+      padre=AddHijo(padre,CrearHoja(ConstantesCJS.por,"3"));
+      padre=AddHijo(padre,dr);
+      RESULT=padre;
+    :}
+    |exp:iz DIVI exp:dr
+    {:
+      padre=CrearHoja(ConstantesCJS.exp,"");
+      padre=AddHijo(padre,iz);
+      padre=AddHijo(padre,CrearHoja(ConstantesCJS.divi,"4"));
+      padre=AddHijo(padre,dr);
+      RESULT=padre;
+    :}
+    |exp:iz MOD exp:dr
+    {:
+      padre=CrearHoja(ConstantesCJS.exp,"");
+      padre=AddHijo(padre,iz);
+      padre=AddHijo(padre,CrearHoja(ConstantesCJS.mod,"5"));
+      padre=AddHijo(padre,dr);
+      RESULT=padre;
+    :}
+    |exp:iz POT exp:dr
+    {:
+      padre=CrearHoja(ConstantesCJS.exp,"");
+      padre=AddHijo(padre,iz);
+      padre=AddHijo(padre,CrearHoja(ConstantesCJS.pot,"6"));
+      padre=AddHijo(padre,dr);
+      RESULT=padre;
+    :}
+    |exp:iz AUMENTO
+    {:
+      padre=CrearHoja(ConstantesCJS.exp,"");
+      padre=AddHijo(padre,iz);
+      padre=AddHijo(padre,CrearHoja(ConstantesCJS.aumentar,"7"));
+      RESULT=padre;
+    :}
+    |exp:iz DECREMENTO
+    {:
+      padre=CrearHoja(ConstantesCJS.exp,"");
+      padre=AddHijo(padre,iz);
+      padre=AddHijo(padre,CrearHoja(ConstantesCJS.decremento,"8"));
+      RESULT=padre;
+    :}
+    |PARIZQ exp:xp PARDER{:RESULT=xp;:}
+    |valor:v{:RESULT=v;:};
+
+valor ::= EVERDARERO {:RESULT =  CrearHoja(ConstantesCJS.booleano,ConstantesCJS.verdadero);:}
+      |EFALSO {:RESULT =  CrearHoja(ConstantesCJS.booleano,ConstantesCJS.falso);:} 
+      |ECADENA:text {:RESULT =  CrearHoja(ConstantesCJS.texto,QuitarComillas(text));:}
+      |ENUMERO:text {:RESULT =  CrearHoja(ConstantesCJS.numero,text);:}
+      |EDATETIME:text {:RESULT =  CrearHoja(ConstantesCJS.fecha,QuitarComillasimple(text));:}
+      |EDATE:text {:RESULT =  CrearHoja(ConstantesCJS.fechahora,QuitarComillasimple(text));:}
+      |EID:text {:RESULT = CrearHoja(ConstantesCJS.eid,text);:}
+      |funcionesVector:nodo{:RESULT = nodo;:}
+      |llamdaFunciones:nodo{:RESULT = nodo;:}
+      |documento:nodo{:RESULT = nodo;:}
+      |valorchtml:nodo{:RESULT = nodo;:};
+
+
+documento ::= DOCUMETO PUNTO evento:nodo
+          {:
+              padre=CrearHoja(ConstantesCJS.documento,"");
+              padre=AddHijo(padre,nodo);
+              RESULT=padre;
+          :};
+
+
+evento ::= obtener:nodo{:RESULT=nodo;:}
+       |observador:nodo{:RESULT=nodo;:};
+       
+observador ::= OBSERVADOR PARIZQ logica:l COMA obs0:nodo PARDER
+        {:
+            padre=CrearHoja(ConstantesCJS.observador,"");
+            padre=AddHijo(padre,l);
+            padre=AddHijo(padre,nodo);
+            RESULT=padre;
+        :};
+
+obs0 ::= llamdaFunciones:nodo{:RESULT=nodo;:}
+     |funciones:nodo{:RESULT=nodo;:};
+
+obtener ::= OBTENER PARIZQ logica:l PARDER 
+        {:
+              padre=CrearHoja(ConstantesCJS.obtener,"");
+              padre=AddHijo(padre,l);
+              RESULT=padre;
+        :}
+        |OBTENER PARIZQ logica:l PARDER PUNTO setelem:s
+        {:
+          padre=CrearHoja(ConstantesCJS.obtener,"");
+          padre=AddHijo(padre,l);
+          padre=AddHijo(padre,s);
+          RESULT=padre;
+        :};
+
+setelem ::=SETELEMENTO PARIZQ logica:l1 COMA logica:l2 PARDER
+        {:
+            padre=CrearHoja(ConstantesCJS.setelem,"");
+            padre=AddHijo(padre,l1);
+            padre=AddHijo(padre,l2);
+            RESULT=padre;
+        :};
+        
+
+valorchtml  ::= EID:eid PUNTO setelem:nodo
+            {:
+                padre=CrearHoja(ConstantesCJS.valorchtml,eid);
+                padre=AddHijo(padre,nodo);
+                RESULT=padre;
+            :};
+            

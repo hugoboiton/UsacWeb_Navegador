@@ -84,7 +84,7 @@ nonterminal NodoArbol lopciones , opciones, id, grupo, ancho , alto ,alineado,fo
 
 nonterminal NodoArbol panel,texto,imagen,boton,enlace;
 
-nonterminal NodoArbol tabla,celdas,celda,lct,ct,cuerpotabla,lcuerpotabla;
+nonterminal NodoArbol tabla,celdas,celda,lct,ct,cuerpotabla;
 
 nonterminal NodoArbol textoa,cajatexto;
 
@@ -422,7 +422,7 @@ lct ::= lct:lc ct:c
 
     :};
 
-ct ::= ABRIR CT CERRAR lcuerpotabla:lc ABRIR FINCT CERRAR
+ct ::= ABRIR CT CERRAR cuerpotabla:lc ABRIR FINCT CERRAR
     {:
         padre=CrearHoja(ConstantesCHTML.ct,"");
         padre=AddHijo(padre,lc);
@@ -434,7 +434,7 @@ ct ::= ABRIR CT CERRAR lcuerpotabla:lc ABRIR FINCT CERRAR
         padre=AddHijo(padre,CrearHoja(ConstantesCHTML.cuerpotabla,""));
         RESULT=padre;
     :}
-   |ABRIR CB CERRAR lcuerpotabla:lc ABRIR FINCB CERRAR
+   |ABRIR CB CERRAR cuerpotabla:lc ABRIR FINCB CERRAR
    {:
         padre=CrearHoja(ConstantesCHTML.cb,"");
         padre=AddHijo(padre,lc);
@@ -447,18 +447,6 @@ ct ::= ABRIR CT CERRAR lcuerpotabla:lc ABRIR FINCT CERRAR
         RESULT=padre;
    :};
 
-
-lcuerpotabla ::= lcuerpotabla:lc cuerpotabla:nodo
-            {:
-                lc=AddHijo(lc,nodo);
-                RESULT=lc;
-            :}
-            |cuerpotabla:nodo
-            {:
-                padre=CrearHoja(ConstantesCHTML.cuerpotabla,"");
-                padre=AddHijo(padre,nodo);
-                RESULT=padre;
-            :};
 
 cuerpotabla ::= texto:nodo{:RESULT=nodo;:}
             |textoa:nodo{:RESULT=nodo;:}
